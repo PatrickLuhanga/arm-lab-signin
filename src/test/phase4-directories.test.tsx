@@ -1,7 +1,14 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { AdminAuthProvider, useAdminAuth } from '../context/AdminAuthContext'
+import {
+  changeAdminPassword,
+  isAdminPasswordConfigured,
+  setAdminPassword,
+  verifyAdminPassword,
+} from '../db/adminAuth'
 import {
   addProject,
   deleteProject,
@@ -41,6 +48,16 @@ vi.mock('../db/signIns', () => ({
   getRecentSignIns: vi.fn(),
 }))
 
+vi.mock('../db/adminAuth', () => ({
+  ADMIN_PASSWORD_HASH_KEY: 'admin_password_hash',
+  ADMIN_PASSWORD_SALT_KEY: 'admin_password_salt',
+  MIN_ADMIN_PASSWORD_LENGTH: 4,
+  isAdminPasswordConfigured: vi.fn(),
+  setAdminPassword: vi.fn(),
+  verifyAdminPassword: vi.fn(),
+  changeAdminPassword: vi.fn(),
+}))
+
 const mockedListProfiles = vi.mocked(listProfiles)
 const mockedListProjects = vi.mocked(listProjects)
 const mockedUpdateProfile = vi.mocked(updateProfile)
@@ -48,6 +65,10 @@ const mockedAddProject = vi.mocked(addProject)
 const mockedUpdateProject = vi.mocked(updateProject)
 const mockedDeleteProject = vi.mocked(deleteProject)
 const mockedGetRecentSignIns = vi.mocked(getRecentSignIns)
+const mockedVerifyAdminPassword = vi.mocked(verifyAdminPassword)
+const mockedIsAdminPasswordConfigured = vi.mocked(isAdminPasswordConfigured)
+const mockedSetAdminPassword = vi.mocked(setAdminPassword)
+const mockedChangeAdminPassword = vi.mocked(changeAdminPassword)
 
 function renderWithRouter(node: ReactNode) {
   return render(<MemoryRouter>{node}</MemoryRouter>)
@@ -57,7 +78,53 @@ function findProfile(id: number) {
   return state.profiles.find((profile) => profile.id === id)
 }
 
+async function passAdminPassword(password = 'adminpass') {
+  const input = await screen.findByLabelText('Admin Password')
+  fireEvent.change(input, { target: { value: password } })
+
+  await act(async () => {
+    fireEvent.click(screen.getByRole('button', { name: 'Unlock' }))
+  })
+}
+
+function cancelPasswordModal() {
+  fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+}
+
+function seedSecondProject() {
+  const list = state.projects[1] ?? (state.projects[1] = [])
+
+  if (!list.some((project) => project.id === 12)) {
+    list.push({
+      id: 12,
+      profile_id: 1,
+      title: 'Second Project',
+      description: null,
+      created_at: '2026-11-02 09:00:00',
+    })
+  }
+
+  const profile = findProfile(1)
+  if (profile) {
+    profile.project_count = list.length
+  }
+}
+
+function DirectoryAuthProbe() {
+  const { isAdminUnlocked } = useAdminAuth()
+  return <div>{isAdminUnlocked ? 'admin-unlocked' : 'admin-locked'}</div>
+}
+
 beforeEach(() => {
+  mockedVerifyAdminPassword.mockReset()
+  mockedVerifyAdminPassword.mockResolvedValue(true)
+  mockedIsAdminPasswordConfigured.mockReset()
+  mockedIsAdminPasswordConfigured.mockResolvedValue(true)
+  mockedSetAdminPassword.mockReset()
+  mockedSetAdminPassword.mockResolvedValue(undefined)
+  mockedChangeAdminPassword.mockReset()
+  mockedChangeAdminPassword.mockResolvedValue(undefined)
+
   state.profiles.length = 0
   for (const key of Object.keys(state.projects)) {
     delete state.projects[Number(key)]
@@ -233,6 +300,13 @@ describe('Phase 4 Arm Members directory', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Delete Project' }))
 
+    expect(
+      await screen.findByRole('heading', { name: 'Admin Password Required' }),
+    ).toBeInTheDocument()
+    expect(mockedDeleteProject).not.toHaveBeenCalled()
+
+    await passAdminPassword()
+
     await waitFor(() => {
       expect(mockedDeleteProject).toHaveBeenCalledWith(1, 11)
     })
@@ -266,6 +340,7 @@ describe('Phase 4 Arm Members directory', () => {
     await screen.findByText('RISC-V Sensor Node')
 
     fireEvent.click(screen.getByRole('button', { name: /edit details/i }))
+    await passAdminPassword()
     fireEvent.change(screen.getByLabelText('Full Name'), {
       target: { value: 'Anele M. Mokoena' },
     })
@@ -280,6 +355,7 @@ describe('Phase 4 Arm Members directory', () => {
     expect((await screen.findAllByText('Anele M. Mokoena')).length).toBeGreaterThan(0)
 
     fireEvent.click(screen.getByRole('button', { name: 'Edit' }))
+    await passAdminPassword()
     fireEvent.change(screen.getByLabelText('Project Title'), {
       target: { value: 'Updated Project' },
     })
@@ -293,6 +369,98 @@ describe('Phase 4 Arm Members directory', () => {
       )
     })
     expect(await screen.findByText('Updated Project')).toBeInTheDocument()
+  })
+
+  it('blocks member and project edits when the admin password is wrong or canceled', async () => {
+    mockedVerifyAdminPassword.mockResolvedValue(false)
+    renderWithRouter(<MembersPage />)
+
+    await screen.findAllByText('Anele Mokoena')
+    await screen.findByText('RISC-V Sensor Node')
+
+    fireEvent.click(screen.getByRole('button', { name: /edit details/i }))
+    await passAdminPassword('wrong-password')
+    expect(await screen.findByText('Incorrect password.')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Edit Member Details' })).not.toBeInTheDocument()
+
+    cancelPasswordModal()
+    expect(
+      screen.queryByRole('heading', { name: 'Admin Password Required' }),
+    ).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Edit' }))
+    await passAdminPassword('wrong-password')
+    expect(await screen.findByText('Incorrect password.')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Edit Project' })).not.toBeInTheDocument()
+
+    cancelPasswordModal()
+    expect(
+      screen.queryByRole('heading', { name: 'Admin Password Required' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('requires confirmation and the admin password before deleting a project', async () => {
+    seedSecondProject()
+    renderWithRouter(<MembersPage />)
+
+    await screen.findAllByText('Anele Mokoena')
+    await waitFor(() => {
+      expect(screen.getAllByRole('button', { name: 'Delete' })).toHaveLength(2)
+    })
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0])
+    expect(await screen.findByText('Delete project?')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+    expect(mockedDeleteProject).not.toHaveBeenCalled()
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0])
+    fireEvent.click(await screen.findByRole('button', { name: 'Delete Project' }))
+    expect(
+      await screen.findByRole('heading', { name: 'Admin Password Required' }),
+    ).toBeInTheDocument()
+
+    cancelPasswordModal()
+    expect(mockedDeleteProject).not.toHaveBeenCalled()
+
+    mockedVerifyAdminPassword.mockResolvedValue(false)
+    fireEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0])
+    fireEvent.click(await screen.findByRole('button', { name: 'Delete Project' }))
+    await passAdminPassword('wrong-password')
+    expect(await screen.findByText('Incorrect password.')).toBeInTheDocument()
+    expect(mockedDeleteProject).not.toHaveBeenCalled()
+  })
+
+  it('verifies each directory action independently without unlocking /admin', async () => {
+    render(
+      <AdminAuthProvider>
+        <MemoryRouter>
+          <DirectoryAuthProbe />
+          <MembersPage />
+        </MemoryRouter>
+      </AdminAuthProvider>,
+    )
+
+    expect(await screen.findByText('admin-locked')).toBeInTheDocument()
+    await screen.findAllByText('Anele Mokoena')
+    await screen.findByText('RISC-V Sensor Node')
+
+    fireEvent.click(screen.getByRole('button', { name: /edit details/i }))
+    await passAdminPassword()
+    expect(
+      await screen.findByRole('heading', { name: 'Edit Member Details' }),
+    ).toBeInTheDocument()
+    expect(screen.getByText('admin-locked')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+    expect(
+      screen.queryByRole('heading', { name: 'Edit Member Details' }),
+    ).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Edit' }))
+    expect(
+      await screen.findByRole('heading', { name: 'Admin Password Required' }),
+    ).toBeInTheDocument()
+    expect(screen.getByText('admin-locked')).toBeInTheDocument()
   })
 })
 
@@ -325,6 +493,7 @@ describe('Phase 4 Interns directory', () => {
     expect(within(list).queryByText('Thandi Mahlangu')).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Edit' }))
+    await passAdminPassword()
     fireEvent.change(screen.getByLabelText('Organization'), {
       target: { value: 'DUT Arm Lab, Durban' },
     })
@@ -337,5 +506,22 @@ describe('Phase 4 Interns directory', () => {
       )
     })
     expect((await screen.findAllByText('DUT Arm Lab, Durban')).length).toBeGreaterThan(0)
+  })
+
+  it('blocks intern edits when the admin password is wrong or canceled', async () => {
+    mockedVerifyAdminPassword.mockResolvedValue(false)
+    renderWithRouter(<InternsPage />)
+
+    await screen.findAllByText('Thandi Mahlangu')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Edit' }))
+    await passAdminPassword('wrong-password')
+    expect(await screen.findByText('Incorrect password.')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Edit Intern Details' })).not.toBeInTheDocument()
+
+    cancelPasswordModal()
+    expect(
+      screen.queryByRole('heading', { name: 'Admin Password Required' }),
+    ).not.toBeInTheDocument()
   })
 })

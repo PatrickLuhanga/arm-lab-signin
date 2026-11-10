@@ -1,5 +1,6 @@
 import { Pencil, Search } from 'lucide-react'
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react'
+import AdminActionPasswordModal from '../components/AdminActionPasswordModal'
 import Breadcrumbs from '../components/Breadcrumbs'
 import Modal from '../components/Modal'
 import RoleBadge from '../components/RoleBadge'
@@ -41,6 +42,7 @@ export default function InternsPage() {
   const [form, setForm] = useState<InternFormState>(emptyForm)
   const [formError, setFormError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [passwordOpen, setPasswordOpen] = useState(false)
 
   const loadProfiles = useCallback(async (preferredId?: number | null) => {
     setError(null)
@@ -103,7 +105,15 @@ export default function InternsPage() {
       (profile.organization ?? '').toLowerCase().includes(query),
   )
 
-  function openEdit() {
+  function requestEdit() {
+    if (!selectedProfile) {
+      return
+    }
+
+    setPasswordOpen(true)
+  }
+
+  function beginEdit() {
     if (!selectedProfile) {
       return
     }
@@ -232,7 +242,7 @@ export default function InternsPage() {
                   </div>
                   <button
                     type="button"
-                    onClick={openEdit}
+                    onClick={requestEdit}
                     className="inline-flex min-h-12 items-center gap-2 rounded-md border border-border bg-surface px-4 text-sm font-semibold text-ink transition hover:bg-surface-subtle"
                   >
                     <Pencil size={16} aria-hidden="true" />
@@ -254,7 +264,7 @@ export default function InternsPage() {
                   <div className="flex items-center justify-between gap-4 py-2.5">
                     <dt className="text-xs font-medium text-muted">Organization</dt>
                     <dd className="text-sm font-medium text-ink">
-                      {selectedProfile.organization ?? '—'}
+                      {selectedProfile.organization ?? 'ï¿½'}
                     </dd>
                   </div>
                   <div className="flex items-center justify-between gap-4 py-2.5">
@@ -297,6 +307,16 @@ export default function InternsPage() {
           </div>
         </div>
       </div>
+      <AdminActionPasswordModal
+        open={passwordOpen}
+        actionLabel="edit intern details"
+        onVerified={() => {
+          setPasswordOpen(false)
+          beginEdit()
+        }}
+        onCancel={() => setPasswordOpen(false)}
+      />
+
       <Modal open={editing} title="Edit Intern Details" onClose={() => setEditing(false)}>
         <form onSubmit={handleSubmit} className="space-y-4">
           {formError ? <StatusBanner tone="error" message={formError} /> : null}

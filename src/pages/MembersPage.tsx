@@ -1,5 +1,6 @@
 import { Pencil, Plus, Search, Trash2 } from 'lucide-react'
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react'
+import AdminActionPasswordModal from '../components/AdminActionPasswordModal'
 import Breadcrumbs from '../components/Breadcrumbs'
 import ConfirmModal from '../components/ConfirmModal'
 import Modal from '../components/Modal'
@@ -26,6 +27,11 @@ interface ProjectFormState {
   description: string
 }
 
+type PendingAdminAction =
+  | { type: 'edit-profile' }
+  | { type: 'edit-project'; project: Project }
+  | { type: 'delete-project'; project: Project }
+
 const emptyProfileForm: ProfileFormState = { fullName: '', studentNumber: '', course: '' }
 const emptyProjectForm: ProjectFormState = { title: '', description: '' }
 
@@ -50,6 +56,7 @@ export default function MembersPage() {
   const [projectFormError, setProjectFormError] = useState<string | null>(null)
   const [savingProject, setSavingProject] = useState(false)
   const [confirmProjectDelete, setConfirmProjectDelete] = useState<Project | null>(null)
+  const [pendingAdminAction, setPendingAdminAction] = useState<PendingAdminAction | null>(null)
 
   const loadProfiles = useCallback(async (preferredId?: number | null) => {
     setError(null)
@@ -111,7 +118,15 @@ export default function MembersPage() {
       profile.student_number.toLowerCase().includes(query),
   )
 
-  function openEditProfile() {
+  function requestEditProfile() {
+    if (!selectedProfile) {
+      return
+    }
+
+    setPendingAdminAction({ type: 'edit-profile' })
+  }
+
+  function beginEditProfile() {
     if (!selectedProfile) {
       return
     }
@@ -154,7 +169,11 @@ export default function MembersPage() {
     setAddingProject(true)
   }
 
-  function openEditProject(project: Project) {
+  function requestEditProject(project: Project) {
+    setPendingAdminAction({ type: 'edit-project', project })
+  }
+
+  function beginEditProject(project: Project) {
     setAddingProject(false)
     setEditingProject(project)
     setProjectForm({ title: project.title, description: project.description ?? '' })
@@ -196,21 +215,50 @@ export default function MembersPage() {
     }
   }
 
-  async function handleDeleteProject() {
-    if (!selectedProfile || !confirmProjectDelete) {
+  function handleConfirmDeleteProject() {
+    if (!confirmProjectDelete) {
+      return
+    }
+
+    const project = confirmProjectDelete
+    setConfirmProjectDelete(null)
+    setPendingAdminAction({ type: 'delete-project', project })
+  }
+
+  async function performDeleteProject(project: Project) {
+    if (!selectedProfile) {
       return
     }
 
     try {
-      await deleteProject(selectedProfile.id, confirmProjectDelete.id)
-      setConfirmProjectDelete(null)
+      await deleteProject(selectedProfile.id, project.id)
       setNotice({ tone: 'success', message: 'Project deleted.' })
       setProjectRefresh((value) => value + 1)
       await loadProfiles(selectedProfile.id)
     } catch (deleteError) {
-      setConfirmProjectDelete(null)
       setNotice({ tone: 'error', message: errorMessage(deleteError) })
     }
+  }
+
+  function handleAdminVerified() {
+    const action = pendingAdminAction
+    setPendingAdminAction(null)
+
+    if (!action) {
+      return
+    }
+
+    if (action.type === 'edit-profile') {
+      beginEditProfile()
+      return
+    }
+
+    if (action.type === 'edit-project') {
+      beginEditProject(action.project)
+      return
+    }
+
+    void performDeleteProject(action.project)
   }
 
   const projectFormOpen = addingProject || editingProject !== null
@@ -305,7 +353,7 @@ export default function MembersPage() {
                   </div>
                   <button
                     type="button"
-                    onClick={openEditProfile}
+                    onClick={requestEditProfile}
                     className="inline-flex min-h-12 items-center gap-2 rounded-md border border-border bg-surface px-4 text-sm font-semibold text-ink transition hover:bg-surface-subtle"
                   >
                     <Pencil size={16} aria-hidden="true" />
@@ -371,7 +419,7 @@ export default function MembersPage() {
                               <div className="flex flex-wrap items-center gap-2">
                                 <button
                                   type="button"
-                                  onClick={() => openEditProject(project)}
+                                  onClick={() => requestEditProject(project)}
                                   className="inline-flex min-h-10 items-center gap-1.5 rounded border border-border bg-surface px-3 text-xs font-semibold text-ink transition hover:bg-surface-subtle"
                                 >
                                   <Pencil size={14} aria-hidden="true" />
@@ -503,6 +551,19 @@ export default function MembersPage() {
         </form>
       </Modal>
 
+      <AdminActionPasswordModal
+        open={pendingAdminAction !== null}
+        actionLabel={
+          pendingAdminAction?.type === 'edit-profile'
+            ? 'edit member details'
+            : pendingAdminAction?.type === 'edit-project'
+              ? 'edit project details'
+              : 'delete this project'
+        }
+        onVerified={handleAdminVerified}
+        onCancel={() => setPendingAdminAction(null)}
+      />
+
       <ConfirmModal
         open={confirmProjectDelete !== null}
         title="Delete project?"
@@ -513,7 +574,7 @@ export default function MembersPage() {
         }
         confirmLabel="Delete Project"
         destructive
-        onConfirm={handleDeleteProject}
+        onConfirm={handleConfirmDeleteProject}
         onCancel={() => setConfirmProjectDelete(null)}
       />
     </section>

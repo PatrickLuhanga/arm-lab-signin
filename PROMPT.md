@@ -169,6 +169,7 @@ Rendered persistently across the top of the app as a flat institutional bar with
 
 ### Screen 4: Arm Members Directory & Project Drawer (`/members`)
 - Inline breadcrumb: `More / Arm Members`.
+- **Admin verification:** Editing member details, editing projects, and deleting projects require a per-action Admin password verification modal. Verifying one action does not unlock this directory or `/admin`; the 1-project delete guard is enforced before prompting.
 - **Unified Split-Pane Panel:** one bordered `rounded-md` container with a `1px` vertical divider between a fixed `300px–340px` left directory column and a fluid right detail workspace. The live search input sits at the top of the left column above a `1px` bottom border and filters by `full_name` or `student_number`.
 - **Left Directory Column:** Selectable rows showing Full Name, Student Number, project count, and total sign-ins.
 - **Right Detail Workspace:**
@@ -181,6 +182,7 @@ Rendered persistently across the top of the app as a flat institutional bar with
 
 ### Screen 5: Interns Directory (`/interns`)
 - Inline breadcrumb: `More / Interns`.
+- **Admin verification:** Editing intern details requires a per-action Admin password verification modal. Verifying one edit does not unlock this directory or `/admin`.
 - **Unified Split-Pane Panel:** one bordered `rounded-md` container with a `1px` vertical divider between a fixed `300px–340px` left directory column and a fluid right detail workspace. The live search input sits at the top of the left column above a `1px` bottom border and filters by `full_name`, `organization`, or `student_number`.
 - **Left Directory Column:** Selectable rows showing Full Name, Student Number, Organization, and total sign-ins.
 - **Right Detail Workspace:**
@@ -453,6 +455,7 @@ Rendered persistently across the top of the app as a flat institutional bar with
 
 ### Screen 4: Arm Members Directory & Project Drawer (`/members`)
 - Inline breadcrumb: `More / Arm Members`.
+- **Admin verification:** Editing member details, editing projects, and deleting projects require a per-action Admin password verification modal. Verifying one action does not unlock this directory or `/admin`; the 1-project delete guard is enforced before prompting.
 - **Unified Split-Pane Panel:** one bordered `rounded-md` container with a `1px` vertical divider between a fixed `300px–340px` left directory column and a fluid right detail workspace. The live search input sits at the top of the left column above a `1px` bottom border and filters by `full_name` or `student_number`.
 - **Left Directory Column:** Selectable rows showing Full Name, Student Number, project count, and total sign-ins.
 - **Right Detail Workspace:**
@@ -465,6 +468,7 @@ Rendered persistently across the top of the app as a flat institutional bar with
 
 ### Screen 5: Interns Directory (`/interns`)
 - Inline breadcrumb: `More / Interns`.
+- **Admin verification:** Editing intern details requires a per-action Admin password verification modal. Verifying one edit does not unlock this directory or `/admin`.
 - **Unified Split-Pane Panel:** one bordered `rounded-md` container with a `1px` vertical divider between a fixed `300px–340px` left directory column and a fluid right detail workspace. The live search input sits at the top of the left column above a `1px` bottom border and filters by `full_name`, `organization`, or `student_number`.
 - **Left Directory Column:** Selectable rows showing Full Name, Student Number, Organization, and total sign-ins.
 - **Right Detail Workspace:**
