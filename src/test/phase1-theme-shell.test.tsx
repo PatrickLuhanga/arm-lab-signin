@@ -104,7 +104,7 @@ describe('Phase 1 theme shell', () => {
     expect(screen.queryByRole('link', { name: 'Sections' })).not.toBeInTheDocument()
   })
 
-  it('uses a More back link on section sub-screens', async () => {
+  it('does not render duplicate back buttons on section sub-screens', async () => {
     window.location.hash = '#/members'
     renderShell()
 
@@ -112,9 +112,21 @@ describe('Phase 1 theme shell', () => {
       expect(mockedGetSetting).toHaveBeenCalledWith('theme')
     })
 
-    fireEvent.click(screen.getByRole('button', { name: 'More' }))
+    expect(screen.getByRole('link', { name: 'More' })).toHaveAttribute('href', '#/sections')
+    expect(screen.queryByRole('button', { name: 'More' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /back to sign-in/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /back to events/i })).not.toBeInTheDocument()
+  })
 
-    expect(await screen.findByText('More Route')).toBeInTheDocument()
-    expect(window.location.hash).toBe('#/sections')
+  it('does not render a duplicate Back to Events control on event check-in', async () => {
+    window.location.hash = '#/events/1/checkin'
+    renderShell()
+
+    await waitFor(() => {
+      expect(mockedGetSetting).toHaveBeenCalledWith('theme')
+    })
+
+    expect(screen.getByRole('link', { name: 'More' })).toHaveAttribute('aria-current', 'page')
+    expect(screen.queryByRole('button', { name: /back to events/i })).not.toBeInTheDocument()
   })
 })

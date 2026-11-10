@@ -77,12 +77,9 @@ export default function SectionsPage() {
   ]
 
   return (
-    <section className="mx-auto w-full max-w-5xl">
-      <div className="mb-6">
+    <section className="w-full">
+      <div className="mb-5">
         <h1 className="text-2xl font-semibold tracking-tight text-ink">More</h1>
-        <p className="mt-2 text-sm text-muted">
-          Jump into the directories, event check-in, or administration tools.
-        </p>
       </div>
 
       {error ? (

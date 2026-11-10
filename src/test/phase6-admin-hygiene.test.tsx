@@ -1,6 +1,6 @@
 import { readFileSync, readdirSync } from 'node:fs'
 import { join, resolve } from 'node:path'
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { Link, MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import AdminGate from '../components/AdminGate'
@@ -74,7 +74,9 @@ const mockedSetSetting = vi.mocked(setSetting)
 function renderAdminPage() {
   return render(
     <AdminAuthProvider>
-      <AdminPage />
+      <MemoryRouter>
+        <AdminPage />
+      </MemoryRouter>
     </AdminAuthProvider>,
   )
 }
@@ -478,6 +480,13 @@ describe('Phase 6 admin password protection', () => {
     renderAdminPage()
 
     await screen.findByRole('heading', { name: 'Create Profile' })
+
+    const breadcrumb = screen.getByRole('navigation', { name: 'Breadcrumb' })
+    expect(within(breadcrumb).getByRole('link', { name: 'More' })).toHaveAttribute(
+      'href',
+      '/sections',
+    )
+    expect(within(breadcrumb).getByText('Admin')).toBeInTheDocument()
 
     expect(screen.getByRole('button', { name: 'Lock Admin' })).toBeInTheDocument()
 

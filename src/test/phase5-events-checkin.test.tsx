@@ -257,7 +257,18 @@ describe('Phase 5 event check-in', () => {
   it('clears the form, prepends the guest with initials, filters rows, and confirms removal', async () => {
     renderCheckIn(1)
 
-    await screen.findByText('Robotics Demo')
+    await screen.findByRole('heading', { name: 'Robotics Demo' })
+
+    const breadcrumb = screen.getByRole('navigation', { name: 'Breadcrumb' })
+    expect(within(breadcrumb).getByRole('link', { name: 'More' })).toHaveAttribute(
+      'href',
+      '/sections',
+    )
+    expect(within(breadcrumb).getByRole('link', { name: 'Events' })).toHaveAttribute(
+      'href',
+      '/events',
+    )
+    expect(within(breadcrumb).getByText('Robotics Demo')).toBeInTheDocument()
 
     const nameInput = screen.getByLabelText('Full Name') as HTMLInputElement
     const organizationInput = screen.getByLabelText('Organization / Affiliation') as HTMLInputElement
@@ -280,7 +291,7 @@ describe('Phase 5 event check-in', () => {
     expect(nameInput.value).toBe('')
     expect(organizationInput.value).toBe('')
     expect(contactInput.value).toBe('')
-    expect(screen.getByText('Robotics Demo')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Robotics Demo' })).toBeInTheDocument()
 
     const rows = screen.getAllByTestId('guest-row')
     expect(rows).toHaveLength(2)

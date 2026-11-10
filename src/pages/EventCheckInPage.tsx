@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import Breadcrumbs from '../components/Breadcrumbs'
 import ConfirmModal from '../components/ConfirmModal'
 import Modal from '../components/Modal'
 import StatusBanner from '../components/StatusBanner'
@@ -250,10 +251,17 @@ export default function EventCheckInPage() {
     }
   }
 
+  const breadcrumbs = [
+    { label: 'More', to: '/sections' },
+    { label: 'Events', to: '/events' },
+    { label: event?.title ?? 'Event Check-In' },
+  ]
+
   if (loading) {
     return (
-      <section className="mx-auto w-full max-w-5xl">
-        <p className="rounded-lg border border-border bg-surface px-6 py-10 text-center text-sm text-muted">
+      <section className="w-full">
+        <Breadcrumbs items={breadcrumbs} />
+        <p className="rounded-md border border-border bg-surface px-6 py-10 text-center text-sm text-muted">
           Loading event...
         </p>
       </section>
@@ -262,30 +270,34 @@ export default function EventCheckInPage() {
 
   if (!event || event.status === 'ended') {
     return (
-      <section className="mx-auto flex w-full max-w-xl flex-col items-center justify-center text-center">
-        <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-lg border border-border bg-surface text-danger">
-          <ShieldCheck size={24} aria-hidden="true" />
+      <section className="w-full">
+        <Breadcrumbs items={breadcrumbs} />
+        <div className="mx-auto flex max-w-xl flex-col items-center justify-center text-center">
+          <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-lg border border-border bg-surface text-danger">
+            <ShieldCheck size={24} aria-hidden="true" />
+          </div>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">
+            This event has ended — guest sign-in is closed
+          </h1>
+          <p className="mt-3 text-sm leading-6 text-muted">
+            Guest check-in is only available while an event is active. Return to the events hub to
+            review the roster or start another event.
+          </p>
+          <Link
+            to="/events"
+            className="mt-6 inline-flex min-h-12 items-center justify-center rounded-md bg-accent px-5 text-sm font-semibold text-white transition hover:bg-accent-hover"
+          >
+            Back to Events
+          </Link>
         </div>
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">
-          This event has ended — guest sign-in is closed
-        </h1>
-        <p className="mt-3 text-sm leading-6 text-muted">
-          Guest check-in is only available while an event is active. Return to the events hub to
-          review the roster or start another event.
-        </p>
-        <Link
-          to="/events"
-          className="mt-6 inline-flex min-h-12 items-center justify-center rounded-md bg-accent px-5 text-sm font-semibold text-white transition hover:bg-accent-hover"
-        >
-          Back to Events
-        </Link>
       </section>
     )
   }
 
   return (
-    <section className="mx-auto w-full max-w-6xl">
-      <div className="rounded-lg border border-border bg-surface p-6">
+    <section className="w-full">
+      <Breadcrumbs items={breadcrumbs} />
+      <div className="rounded-md border border-border bg-surface p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="flex flex-wrap items-center gap-2">

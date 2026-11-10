@@ -1,5 +1,6 @@
 import { Database, Download, KeyRound, Lock, Search, Trash2 } from 'lucide-react'
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react'
+import Breadcrumbs from '../components/Breadcrumbs'
 import ConfirmModal from '../components/ConfirmModal'
 import RoleBadge from '../components/RoleBadge'
 import StatusBanner, { type BannerTone } from '../components/StatusBanner'
@@ -312,14 +313,11 @@ export default function AdminPage() {
   )
 
   return (
-    <section className="mx-auto w-full max-w-6xl">
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-ink">Admin</h1>
-          <p className="mt-2 text-sm text-muted">
-            Create profiles, review attendance, export CSV reports, and back up the local database.
-          </p>
-        </div>
+    <section className="w-full">
+      <Breadcrumbs items={[{ label: 'More', to: '/sections' }, { label: 'Admin' }]} />
+
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Admin</h1>
         <button
           type="button"
           onClick={lock}

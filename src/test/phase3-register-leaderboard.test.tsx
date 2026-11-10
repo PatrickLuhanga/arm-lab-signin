@@ -201,6 +201,15 @@ describe('Phase 3 combined leaderboard', () => {
     render(<LeaderboardPage />)
 
     expect(await screen.findByText('Anele Mokoena')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Leaderboard' })).toBeInTheDocument()
+    expect(screen.queryByText('Combined Leaderboard')).not.toBeInTheDocument()
+    expect(screen.getAllByRole('columnheader').map((header) => header.textContent)).toEqual([
+      '#',
+      'Name',
+      'Qualification',
+      'Role',
+      'Days',
+    ])
     expect(screen.getByText('Thandi Mahlangu')).toBeInTheDocument()
     expect(screen.getByText('Arm Member')).toBeInTheDocument()
     expect(screen.getByText('Intern')).toBeInTheDocument()

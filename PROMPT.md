@@ -126,7 +126,8 @@ CREATE TABLE IF NOT EXISTS app_settings (
 
 ## 4. Global Navigation Header
 Rendered persistently across the top of the app as a flat institutional bar with a `1px` neutral bottom border. Active routes use matte accent text with a clean bottom indicator, never colored borders:
-- **Left:** `<ArmLabLogo/>` (clicking returns to `/`) + contextual back button on sub-screens (e.g., `More` or `Back to Events`).
+- **Left:** `<ArmLabLogo/>` only (clicking returns to `/`). No duplicate back buttons in the header.
+- **Inline breadcrumbs:** Sub-pages render a breadcrumb above the page heading instead of a navbar back button (e.g., `More / Arm Members`, `More / Interns`, `More / Events`, `More / Events / <Event Title>`, `More / Admin`). Clickable `More` and `Events` links return up the hierarchy.
 - **Right (3 Global Controls):**
   1. **Theme Toggle Button** (`Moon` when Light, `Lightbulb` when Dark)
   2. **Leaderboard Button** (`Trophy` icon + `Leaderboard`) -> `/leaderboard`
@@ -148,13 +149,16 @@ Rendered persistently across the top of the app as a flat institutional bar with
   - **Not Registered (Red):** `Profile not found for "[Student #]". Please contact an Admin to create your profile.`
   - Auto-clear input and dismiss banner after 4 seconds (canceling timer if the user starts typing again).
 
-### Screen 2: Combined Leaderboard (`/leaderboard`)
-- **Single unified leaderboard table** ranking **both Arm Members and Interns together** by sign-in count (`COUNT(sign_ins.id) DESC, full_name ASC`).
-- Period filter toggle at top-right (in order): **`Today`**, **`This Week`**, **`This Month`**, and **`All Time`**. Boundaries are local kiosk dates: today, the current Monday-to-Sunday week, the current calendar month, or all recorded sign-ins. Hide profiles with zero sign-ins for the selected period and show a period-specific empty state.
-- Table columns:
-  - **Rank:** `#1`, `#2`, `#3`... (styled cleanly, zero medal emojis).
-  - **Name & Qualification:** Bold `full_name` on line 1; `course` + color-coded role pill (`Arm Member` or `Intern`) right next to the qualification on line 2.
-  - **Sign-Ins:** e.g., `42 days`.
+### Screen 2: Leaderboard (`/leaderboard`)
+- Plain page heading **`Leaderboard`** (no trophy icon and no explanatory subtitle).
+- **Single unified table** ranking Arm Members and Interns together by sign-in count (`COUNT(sign_ins.id) DESC, full_name ASC`).
+- Connected segmented period control at top-right (rounded `4px`, `1px` neutral hairline borders, flush dividers, solid `#0076A8` active tab): **`Today`**, **`This Week`**, **`This Month`**, **`All Time`**. Boundaries are local kiosk dates; hide zero-count profiles and show a period-specific empty state.
+- Five aligned table columns:
+  - **`#`:** Rank (`#1`, `#2`, `#3`...).
+  - **`Name`:** Bold full name.
+  - **`Qualification`:** Course.
+  - **`Role`:** Restrained `Arm Member` / `Intern` badge.
+  - **`Days`:** Right-aligned `tabular-nums` sign-in total (`1 day`, `14 days`).
 
 ### Screen 3: The More Hub (`/sections`)
 - Clean **2×2 card grid** showing:
@@ -164,23 +168,25 @@ Rendered persistently across the top of the app as a flat institutional bar with
   4. **Admin** (`SlidersHorizontal` icon) — `Profiles, Logs & Backups` -> `/admin`
 
 ### Screen 4: Arm Members Directory & Project Drawer (`/members`)
-- **Master-Detail Split Layout** with live search input (filters by `full_name` or `student_number`).
-- **Left List:** Selectable rows showing Full Name, Student Number, project count, and total sign-ins.
-- **Right Detail Panel:**
+- Inline breadcrumb: `More / Arm Members`.
+- **Unified Split-Pane Panel:** one bordered `rounded-md` container with a `1px` vertical divider between a fixed `300px–340px` left directory column and a fluid right detail workspace. The live search input sits at the top of the left column above a `1px` bottom border and filters by `full_name` or `student_number`.
+- **Left Directory Column:** Selectable rows showing Full Name, Student Number, project count, and total sign-ins.
+- **Right Detail Workspace:**
   - Header with Full Name, `[Arm Member]` pill, and an **`Edit Details`** button (opens modal to edit `full_name`, `student_number`, and `course` with duplicate student number validation).
-  - Metadata: Student #, Course, Total Sign-Ins.
-  - **Projects Section** (`Minimum 1 required`):
+  - Flat specification grid: Student #, Course, and Total Sign-Ins as hairline-divided label/value rows (no nested cards).
+  - **Projects Section** (`Minimum 1 required`): clean hairline-divided list rows directly on the detail surface, not stacked nested boxes.
     - Lists all projects (`title` + optional `description`).
-    - Each project card has an **`Edit`** button (modal/inline form to update title/description) and a **`Delete`** button (confirmation modal; disabled with tooltip/hint `"At least 1 project required"` when `projects.length === 1`).
+    - Each project row has an **`Edit`** button (modal/inline form to update title/description) and a **`Delete`** button (confirmation modal; disabled with tooltip/hint `"At least 1 project required"` when `projects.length === 1`).
     - **`+ Add New Project`** button/form at the bottom of the projects list.
 
 ### Screen 5: Interns Directory (`/interns`)
-- Matching **Master-Detail Split Layout** with live search input (filters by `full_name`, `organization`, or `student_number`).
-- **Left List:** Selectable rows showing Full Name, Student Number, Organization, and total sign-ins.
-- **Right Detail Panel:**
+- Inline breadcrumb: `More / Interns`.
+- **Unified Split-Pane Panel:** one bordered `rounded-md` container with a `1px` vertical divider between a fixed `300px–340px` left directory column and a fluid right detail workspace. The live search input sits at the top of the left column above a `1px` bottom border and filters by `full_name`, `organization`, or `student_number`.
+- **Left Directory Column:** Selectable rows showing Full Name, Student Number, Organization, and total sign-ins.
+- **Right Detail Workspace:**
   - Header with Full Name, `[Intern]` pill, and an **`Edit`** button (opens modal to edit `full_name`, `student_number`, `course`, and `organization`).
-  - Metadata: Student #, Course, Organization, Total Sign-Ins.
-  - **Recent Sign-Ins:** Chronological list of recent sign-in dates and times (`signed_in_at`).
+  - Flat specification grid: Student #, Course, Organization, and Total Sign-Ins as hairline-divided label/value rows (no nested cards).
+  - **Recent Sign-Ins:** Chronological hairline-divided list of recent sign-in dates and times (`signed_in_at`) directly on the detail surface, with plain muted empty text when none exist.
 
 ### Screen 6A: Events Hub (`/events`)
 Ordered strictly **top-to-bottom** as follows:
@@ -199,6 +205,7 @@ Ordered strictly **top-to-bottom** as follows:
    - **Sign-in is strictly blocked** for ended events.
 
 ### Screen 6B: Dedicated Active Event Check-In Page (`/events/:id/checkin`)
+- Inline breadcrumb: `More / Events / <Event Title>`.
 Designed for continuous unattended walk-up guest check-in using a **vertical Top-and-Bottom stack** (NOT left/right columns):
 - **Route Guard:** If the event is `'ended'` (or missing), display a clear `"This event has ended — guest sign-in is closed"` state with a button back to `/events`.
 - **Top Section — Event Info & Walk-Up Check-In Card:**
@@ -216,6 +223,7 @@ Designed for continuous unattended walk-up guest check-in using a **vertical Top
     5. **Row Actions (`...`):** Dropdown menu to **Edit Guest** (fix typos) or **Remove Entry** (with confirmation modal).
 
 ### Screen 7: Admin Hub (`/admin`)
+- Inline breadcrumb: `More / Admin`.
 Organized into 3 clean tabs:
 1. **Create & Manage Profiles:**
    - **Create Profile Form:** Role selector (`Arm Member` | `Intern`), Full Name*, Student Number*, Course (currently studying or completed)*.
@@ -402,7 +410,8 @@ CREATE TABLE IF NOT EXISTS app_settings (
 
 ## 4. Global Navigation Header
 Rendered persistently across the top of the app as a flat institutional bar with a `1px` neutral bottom border. Active routes use matte accent text with a clean bottom indicator, never colored borders:
-- **Left:** `<ArmLabLogo/>` (clicking returns to `/`) + contextual back button on sub-screens (e.g., `More` or `Back to Events`).
+- **Left:** `<ArmLabLogo/>` only (clicking returns to `/`). No duplicate back buttons in the header.
+- **Inline breadcrumbs:** Sub-pages render a breadcrumb above the page heading instead of a navbar back button (e.g., `More / Arm Members`, `More / Interns`, `More / Events`, `More / Events / <Event Title>`, `More / Admin`). Clickable `More` and `Events` links return up the hierarchy.
 - **Right (3 Global Controls):**
   1. **Theme Toggle Button** (`Moon` when Light, `Lightbulb` when Dark)
   2. **Leaderboard Button** (`Trophy` icon + `Leaderboard`) -> `/leaderboard`
@@ -424,13 +433,16 @@ Rendered persistently across the top of the app as a flat institutional bar with
   - **Not Registered (Red):** `Profile not found for "[Student #]". Please contact an Admin to create your profile.`
   - Auto-clear input and dismiss banner after 4 seconds (canceling timer if the user starts typing again).
 
-### Screen 2: Combined Leaderboard (`/leaderboard`)
-- **Single unified leaderboard table** ranking **both Arm Members and Interns together** by sign-in count (`COUNT(sign_ins.id) DESC, full_name ASC`).
-- Period filter toggle at top-right (in order): **`Today`**, **`This Week`**, **`This Month`**, and **`All Time`**. Boundaries are local kiosk dates: today, the current Monday-to-Sunday week, the current calendar month, or all recorded sign-ins. Hide profiles with zero sign-ins for the selected period and show a period-specific empty state.
-- Table columns:
-  - **Rank:** `#1`, `#2`, `#3`... (styled cleanly, zero medal emojis).
-  - **Name & Qualification:** Bold `full_name` on line 1; `course` + color-coded role pill (`Arm Member` or `Intern`) right next to the qualification on line 2.
-  - **Sign-Ins:** e.g., `42 days`.
+### Screen 2: Leaderboard (`/leaderboard`)
+- Plain page heading **`Leaderboard`** (no trophy icon and no explanatory subtitle).
+- **Single unified table** ranking Arm Members and Interns together by sign-in count (`COUNT(sign_ins.id) DESC, full_name ASC`).
+- Connected segmented period control at top-right (rounded `4px`, `1px` neutral hairline borders, flush dividers, solid `#0076A8` active tab): **`Today`**, **`This Week`**, **`This Month`**, **`All Time`**. Boundaries are local kiosk dates; hide zero-count profiles and show a period-specific empty state.
+- Five aligned table columns:
+  - **`#`:** Rank (`#1`, `#2`, `#3`...).
+  - **`Name`:** Bold full name.
+  - **`Qualification`:** Course.
+  - **`Role`:** Restrained `Arm Member` / `Intern` badge.
+  - **`Days`:** Right-aligned `tabular-nums` sign-in total (`1 day`, `14 days`).
 
 ### Screen 3: The More Hub (`/sections`)
 - Clean **2×2 card grid** showing:
@@ -440,23 +452,25 @@ Rendered persistently across the top of the app as a flat institutional bar with
   4. **Admin** (`SlidersHorizontal` icon) — `Profiles, Logs & Backups` -> `/admin`
 
 ### Screen 4: Arm Members Directory & Project Drawer (`/members`)
-- **Master-Detail Split Layout** with live search input (filters by `full_name` or `student_number`).
-- **Left List:** Selectable rows showing Full Name, Student Number, project count, and total sign-ins.
-- **Right Detail Panel:**
+- Inline breadcrumb: `More / Arm Members`.
+- **Unified Split-Pane Panel:** one bordered `rounded-md` container with a `1px` vertical divider between a fixed `300px–340px` left directory column and a fluid right detail workspace. The live search input sits at the top of the left column above a `1px` bottom border and filters by `full_name` or `student_number`.
+- **Left Directory Column:** Selectable rows showing Full Name, Student Number, project count, and total sign-ins.
+- **Right Detail Workspace:**
   - Header with Full Name, `[Arm Member]` pill, and an **`Edit Details`** button (opens modal to edit `full_name`, `student_number`, and `course` with duplicate student number validation).
-  - Metadata: Student #, Course, Total Sign-Ins.
-  - **Projects Section** (`Minimum 1 required`):
+  - Flat specification grid: Student #, Course, and Total Sign-Ins as hairline-divided label/value rows (no nested cards).
+  - **Projects Section** (`Minimum 1 required`): clean hairline-divided list rows directly on the detail surface, not stacked nested boxes.
     - Lists all projects (`title` + optional `description`).
-    - Each project card has an **`Edit`** button (modal/inline form to update title/description) and a **`Delete`** button (confirmation modal; disabled with tooltip/hint `"At least 1 project required"` when `projects.length === 1`).
+    - Each project row has an **`Edit`** button (modal/inline form to update title/description) and a **`Delete`** button (confirmation modal; disabled with tooltip/hint `"At least 1 project required"` when `projects.length === 1`).
     - **`+ Add New Project`** button/form at the bottom of the projects list.
 
 ### Screen 5: Interns Directory (`/interns`)
-- Matching **Master-Detail Split Layout** with live search input (filters by `full_name`, `organization`, or `student_number`).
-- **Left List:** Selectable rows showing Full Name, Student Number, Organization, and total sign-ins.
-- **Right Detail Panel:**
+- Inline breadcrumb: `More / Interns`.
+- **Unified Split-Pane Panel:** one bordered `rounded-md` container with a `1px` vertical divider between a fixed `300px–340px` left directory column and a fluid right detail workspace. The live search input sits at the top of the left column above a `1px` bottom border and filters by `full_name`, `organization`, or `student_number`.
+- **Left Directory Column:** Selectable rows showing Full Name, Student Number, Organization, and total sign-ins.
+- **Right Detail Workspace:**
   - Header with Full Name, `[Intern]` pill, and an **`Edit`** button (opens modal to edit `full_name`, `student_number`, `course`, and `organization`).
-  - Metadata: Student #, Course, Organization, Total Sign-Ins.
-  - **Recent Sign-Ins:** Chronological list of recent sign-in dates and times (`signed_in_at`).
+  - Flat specification grid: Student #, Course, Organization, and Total Sign-Ins as hairline-divided label/value rows (no nested cards).
+  - **Recent Sign-Ins:** Chronological hairline-divided list of recent sign-in dates and times (`signed_in_at`) directly on the detail surface, with plain muted empty text when none exist.
 
 ### Screen 6A: Events Hub (`/events`)
 Ordered strictly **top-to-bottom** as follows:
@@ -475,6 +489,7 @@ Ordered strictly **top-to-bottom** as follows:
    - **Sign-in is strictly blocked** for ended events.
 
 ### Screen 6B: Dedicated Active Event Check-In Page (`/events/:id/checkin`)
+- Inline breadcrumb: `More / Events / <Event Title>`.
 Designed for continuous unattended walk-up guest check-in using a **vertical Top-and-Bottom stack** (NOT left/right columns):
 - **Route Guard:** If the event is `'ended'` (or missing), display a clear `"This event has ended — guest sign-in is closed"` state with a button back to `/events`.
 - **Top Section — Event Info & Walk-Up Check-In Card:**
@@ -492,6 +507,7 @@ Designed for continuous unattended walk-up guest check-in using a **vertical Top
     5. **Row Actions (`...`):** Dropdown menu to **Edit Guest** (fix typos) or **Remove Entry** (with confirmation modal).
 
 ### Screen 7: Admin Hub (`/admin`)
+- Inline breadcrumb: `More / Admin`.
 Organized into 3 clean tabs:
 1. **Create & Manage Profiles:**
    - **Create Profile Form:** Role selector (`Arm Member` | `Intern`), Full Name*, Student Number*, Course (currently studying or completed)*.

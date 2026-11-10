@@ -30,7 +30,7 @@ export default function App() {
         <HashRouter>
           <div className="flex min-h-screen flex-col bg-app text-ink">
             <Navbar />
-            <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
+            <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-8">
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/leaderboard" element={<LeaderboardPage />} />

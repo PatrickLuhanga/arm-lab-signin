@@ -1,4 +1,3 @@
-import { Trophy } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import RoleBadge from '../components/RoleBadge'
 import StatusBanner from '../components/StatusBanner'
@@ -46,29 +45,27 @@ export default function LeaderboardPage() {
   const visibleEntries = entries.filter((entry) => entry.sign_in_count > 0)
 
   return (
-    <section className="mx-auto w-full max-w-4xl">
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight text-ink">
-            <Trophy size={20} aria-hidden="true" className="text-slate-500 dark:text-slate-400" />
-            Combined Leaderboard
-          </h1>
-          <p className="mt-2 text-sm text-muted">
-            Arm Members and Interns ranked together by verified daily sign-ins.
-          </p>
-        </div>
+    <section className="w-full">
+      <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Leaderboard</h1>
 
-        <div className="flex rounded-md border border-border bg-surface-subtle p-1" role="group" aria-label="Leaderboard period">
-          {PERIOD_OPTIONS.map((option) => (
+        <div
+          className="inline-flex overflow-hidden rounded border border-border"
+          role="group"
+          aria-label="Leaderboard period"
+        >
+          {PERIOD_OPTIONS.map((option, index) => (
             <button
               key={option.value}
               type="button"
               onClick={() => setPeriod(option.value)}
               aria-pressed={period === option.value}
-              className={`min-h-12 rounded-md px-4 text-sm font-semibold transition ${
+              className={`min-h-12 px-4 text-sm font-medium transition ${
+                index > 0 ? 'border-l border-border' : ''
+              } ${
                 period === option.value
                   ? 'bg-accent text-white'
-                  : 'text-muted hover:bg-surface hover:text-ink'
+                  : 'bg-surface text-muted hover:bg-surface-subtle hover:text-ink'
               }`}
             >
               {option.label}
@@ -83,7 +80,7 @@ export default function LeaderboardPage() {
         </div>
       ) : null}
 
-      <div className="overflow-hidden rounded-lg border border-border bg-surface">
+      <div className="overflow-hidden rounded-md border border-border bg-surface">
         {loading ? (
           <p className="px-6 py-10 text-center text-sm text-muted">Loading leaderboard...</p>
         ) : visibleEntries.length === 0 ? (
@@ -95,26 +92,36 @@ export default function LeaderboardPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[560px] border-collapse text-left">
+            <table className="w-full min-w-[720px] border-collapse text-left">
               <thead className="bg-surface-subtle">
                 <tr className="border-b border-border text-xs font-medium text-muted">
-                  <th scope="col" className="w-20 px-6 py-3">Rank</th>
-                  <th scope="col" className="px-6 py-3">Name &amp; Qualification</th>
-                  <th scope="col" className="px-6 py-3 text-right">Sign-Ins</th>
+                  <th scope="col" className="w-16 px-4 py-3">
+                    #
+                  </th>
+                  <th scope="col" className="px-4 py-3">
+                    Name
+                  </th>
+                  <th scope="col" className="px-4 py-3">
+                    Qualification
+                  </th>
+                  <th scope="col" className="px-4 py-3">
+                    Role
+                  </th>
+                  <th scope="col" className="px-4 py-3 text-right">
+                    Days
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {visibleEntries.map((entry) => (
                   <tr key={entry.profile_id} className="border-b border-border last:border-b-0">
-                    <td className="px-6 py-4 text-sm font-semibold text-muted">#{entry.rank}</td>
-                    <td className="px-6 py-4">
-                      <p className="text-sm font-semibold text-ink">{entry.full_name}</p>
-                      <div className="mt-1 flex flex-wrap items-center gap-2">
-                        <span className="text-xs text-muted">{entry.course}</span>
-                        <RoleBadge role={entry.role} />
-                      </div>
+                    <td className="px-4 py-3 text-sm text-muted tabular-nums">#{entry.rank}</td>
+                    <td className="px-4 py-3 text-sm font-semibold text-ink">{entry.full_name}</td>
+                    <td className="px-4 py-3 text-sm text-muted">{entry.course}</td>
+                    <td className="px-4 py-3">
+                      <RoleBadge role={entry.role} />
                     </td>
-                    <td className="px-6 py-4 text-right text-sm font-semibold text-ink">
+                    <td className="px-4 py-3 text-right text-sm font-medium text-ink tabular-nums">
                       {pluralize(entry.sign_in_count, 'day')}
                     </td>
                   </tr>

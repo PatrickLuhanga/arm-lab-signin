@@ -1,5 +1,6 @@
 import { Pencil, Plus, Search, Trash2 } from 'lucide-react'
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react'
+import Breadcrumbs from '../components/Breadcrumbs'
 import ConfirmModal from '../components/ConfirmModal'
 import Modal from '../components/Modal'
 import RoleBadge from '../components/RoleBadge'
@@ -215,28 +216,11 @@ export default function MembersPage() {
   const projectFormOpen = addingProject || editingProject !== null
 
   return (
-    <section className="mx-auto w-full max-w-6xl">
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-ink">Arm Members</h1>
-          <p className="mt-2 text-sm text-muted">
-            Search the member directory, edit details, and manage each member&apos;s projects.
-          </p>
-        </div>
-        <label className="relative block w-full sm:w-80">
-          <Search
-            size={18}
-            aria-hidden="true"
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted"
-          />
-          <input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search members..."
-            aria-label="Search members"
-            className="h-12 w-full rounded-md border border-border bg-surface pl-10 pr-4 text-sm text-ink placeholder:text-muted focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-accent/25 focus:outline-none"
-          />
-        </label>
+    <section className="w-full">
+      <Breadcrumbs items={[{ label: 'More', to: '/sections' }, { label: 'Arm Members' }]} />
+
+      <div className="mb-5">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Arm Members</h1>
       </div>
 
       {error ? (
@@ -251,151 +235,185 @@ export default function MembersPage() {
         </div>
       ) : null}
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(260px,340px)_1fr]">
-        <div
-          data-testid="member-list"
-          className="max-h-[70vh] overflow-y-auto rounded-lg border border-border bg-surface"
-        >
-          {loading ? (
-            <p className="px-4 py-8 text-center text-sm text-muted">Loading members...</p>
-          ) : filteredProfiles.length === 0 ? (
-            <p className="px-4 py-8 text-center text-sm text-muted">No members match your search.</p>
-          ) : (
-            <ul className="divide-y divide-border">
-              {filteredProfiles.map((profile) => (
-                <li key={profile.id}>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedId(profile.id)}
-                    aria-pressed={profile.id === selectedId}
-                    className={`flex min-h-16 w-full flex-col items-start gap-1 px-4 py-3 text-left transition ${
-                      profile.id === selectedId ? 'bg-surface-subtle' : 'hover:bg-surface-subtle'
-                    }`}
-                  >
-                    <span className="text-sm font-semibold text-ink">{profile.full_name}</span>
-                    <span className="text-xs text-muted">{profile.student_number}</span>
-                    <span className="text-xs text-muted">
-                      {pluralize(profile.project_count, 'project')} | {pluralize(profile.sign_in_count, 'sign-in')}
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+      <div className="overflow-hidden rounded-md border border-border bg-surface">
+        <div className="grid lg:grid-cols-[320px_1fr]">
+          <div className="border-b border-border lg:border-b-0 lg:border-r">
+            <div className="border-b border-border p-3">
+              <label className="relative block">
+                <Search
+                  size={16}
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted"
+                />
+                <input
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Search members..."
+                  aria-label="Search members"
+                  className="h-10 w-full rounded border border-border bg-surface pl-9 pr-3 text-sm text-ink placeholder:text-muted focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-accent/25 focus:outline-none"
+                />
+              </label>
+            </div>
 
-        <div className="rounded-lg border border-border bg-surface p-6">
-          {selectedProfile ? (
-            <>
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="text-xl font-semibold tracking-tight text-ink">
-                      {selectedProfile.full_name}
-                    </h2>
-                    <RoleBadge role="arm_member" />
-                  </div>
-                  <p className="mt-1 text-sm text-muted">{selectedProfile.course}</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={openEditProfile}
-                  className="inline-flex min-h-12 items-center gap-2 rounded-md border border-border bg-surface px-4 text-sm font-semibold text-ink transition hover:bg-surface-subtle"
-                >
-                  <Pencil size={16} aria-hidden="true" />
-                  Edit Details
-                </button>
-              </div>
+            <div data-testid="member-list" className="max-h-[70vh] overflow-y-auto">
+              {loading ? (
+                <p className="px-4 py-8 text-center text-sm text-muted">Loading members...</p>
+              ) : filteredProfiles.length === 0 ? (
+                <p className="px-4 py-8 text-center text-sm text-muted">
+                  No members match your search.
+                </p>
+              ) : (
+                <ul className="divide-y divide-border">
+                  {filteredProfiles.map((profile) => (
+                    <li key={profile.id}>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedId(profile.id)}
+                        aria-pressed={profile.id === selectedId}
+                        className={`flex min-h-16 w-full flex-col items-start gap-1 px-4 py-3 text-left transition ${
+                          profile.id === selectedId
+                            ? 'bg-surface-subtle'
+                            : 'hover:bg-surface-subtle'
+                        }`}
+                      >
+                        <span className="text-sm font-semibold text-ink">{profile.full_name}</span>
+                        <span className="text-xs text-muted">{profile.student_number}</span>
+                        <span className="text-xs text-muted">
+                          {pluralize(profile.project_count, 'project')} |{' '}
+                          {pluralize(profile.sign_in_count, 'sign-in')}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
 
-              <dl className="mt-5 grid gap-3 sm:grid-cols-3">
-                <div className="rounded-md border border-border bg-surface-subtle px-4 py-3">
-                  <dt className="text-xs font-medium text-muted">Student #</dt>
-                  <dd className="mt-1 text-sm font-semibold text-ink">{selectedProfile.student_number}</dd>
-                </div>
-                <div className="rounded-md border border-border bg-surface-subtle px-4 py-3">
-                  <dt className="text-xs font-medium text-muted">Course</dt>
-                  <dd className="mt-1 text-sm font-semibold text-ink">{selectedProfile.course}</dd>
-                </div>
-                <div className="rounded-md border border-border bg-surface-subtle px-4 py-3">
-                  <dt className="text-xs font-medium text-muted">Total Sign-Ins</dt>
-                  <dd className="mt-1 text-sm font-semibold text-ink">{selectedProfile.sign_in_count}</dd>
-                </div>
-              </dl>
-
-              <div className="mt-6">
-                <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="p-6">
+            {selectedProfile ? (
+              <>
+                <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <h3 className="text-base font-semibold text-ink">Projects</h3>
-                    <p className="text-xs text-muted">Minimum 1 required</p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="text-xl font-semibold tracking-tight text-ink">
+                        {selectedProfile.full_name}
+                      </h2>
+                      <RoleBadge role="arm_member" />
+                    </div>
+                    <p className="mt-1 text-sm text-muted">{selectedProfile.course}</p>
                   </div>
                   <button
                     type="button"
-                    onClick={openAddProject}
-                    className="inline-flex min-h-12 items-center gap-2 rounded-md bg-accent px-4 text-sm font-semibold text-white transition hover:bg-accent-hover"
+                    onClick={openEditProfile}
+                    className="inline-flex min-h-12 items-center gap-2 rounded-md border border-border bg-surface px-4 text-sm font-semibold text-ink transition hover:bg-surface-subtle"
                   >
-                    <Plus size={16} aria-hidden="true" />
-                    Add New Project
+                    <Pencil size={16} aria-hidden="true" />
+                    Edit Details
                   </button>
                 </div>
 
-                <div className="mt-4 space-y-3">
+                <dl className="mt-5 divide-y divide-border border-y border-border">
+                  <div className="flex items-center justify-between gap-4 py-2.5">
+                    <dt className="text-xs font-medium text-muted">Student #</dt>
+                    <dd className="text-sm font-medium text-ink">
+                      {selectedProfile.student_number}
+                    </dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-4 py-2.5">
+                    <dt className="text-xs font-medium text-muted">Course</dt>
+                    <dd className="text-sm font-medium text-ink">{selectedProfile.course}</dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-4 py-2.5">
+                    <dt className="text-xs font-medium text-muted">Total Sign-Ins</dt>
+                    <dd className="text-sm font-medium text-ink">
+                      {selectedProfile.sign_in_count}
+                    </dd>
+                  </div>
+                </dl>
+
+                <div className="mt-6">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <h3 className="text-base font-semibold text-ink">Projects</h3>
+                      <p className="text-xs text-muted">Minimum 1 required</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={openAddProject}
+                      className="inline-flex min-h-12 items-center gap-2 rounded-md bg-accent px-4 text-sm font-semibold text-white transition hover:bg-accent-hover"
+                    >
+                      <Plus size={16} aria-hidden="true" />
+                      Add New Project
+                    </button>
+                  </div>
+
                   {projects.length === 0 ? (
-                    <p className="rounded-md border border-border bg-surface-subtle px-4 py-4 text-sm text-muted">
+                    <p className="mt-4 text-sm text-muted">
                       No projects yet. Add the first project to keep this member compliant.
                     </p>
                   ) : (
-                    projects.map((project) => {
-                      const isLastProject = projects.length <= 1
+                    <div className="mt-4 divide-y divide-border border-t border-border">
+                      {projects.map((project) => {
+                        const isLastProject = projects.length <= 1
 
-                      return (
-                        <div key={project.id} className="rounded-md border border-border bg-surface-subtle p-4">
-                          <div className="flex flex-wrap items-start justify-between gap-3">
-                            <div className="min-w-0">
-                              <p className="text-sm font-semibold text-ink">{project.title}</p>
-                              {project.description ? (
-                                <p className="mt-1 text-sm leading-6 text-muted">{project.description}</p>
-                              ) : null}
+                        return (
+                          <div key={project.id} className="py-3">
+                            <div className="flex flex-wrap items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="text-sm font-semibold text-ink">{project.title}</p>
+                                {project.description ? (
+                                  <p className="mt-1 text-sm leading-6 text-muted">
+                                    {project.description}
+                                  </p>
+                                ) : null}
+                              </div>
+                              <div className="flex flex-wrap items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => openEditProject(project)}
+                                  className="inline-flex min-h-10 items-center gap-1.5 rounded border border-border bg-surface px-3 text-xs font-semibold text-ink transition hover:bg-surface-subtle"
+                                >
+                                  <Pencil size={14} aria-hidden="true" />
+                                  Edit
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setConfirmProjectDelete(project)}
+                                  disabled={isLastProject}
+                                  title={
+                                    isLastProject
+                                      ? 'At least 1 project required'
+                                      : 'Delete project'
+                                  }
+                                  className="inline-flex min-h-10 items-center gap-1.5 rounded border border-border bg-surface px-3 text-xs font-semibold text-danger transition hover:bg-danger-fill disabled:cursor-not-allowed disabled:opacity-40"
+                                >
+                                  <Trash2 size={14} aria-hidden="true" />
+                                  Delete
+                                </button>
+                              </div>
                             </div>
-                            <div className="flex flex-wrap items-center gap-2">
-                              <button
-                                type="button"
-                                onClick={() => openEditProject(project)}
-                                className="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 text-xs font-semibold text-ink transition hover:bg-surface-subtle"
-                              >
-                                <Pencil size={14} aria-hidden="true" />
-                                Edit
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setConfirmProjectDelete(project)}
-                                disabled={isLastProject}
-                                title={isLastProject ? 'At least 1 project required' : 'Delete project'}
-                                className="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 text-xs font-semibold text-danger transition hover:bg-danger-fill disabled:cursor-not-allowed disabled:opacity-40"
-                              >
-                                <Trash2 size={14} aria-hidden="true" />
-                                Delete
-                              </button>
-                            </div>
+                            {isLastProject ? (
+                              <p className="mt-2 text-xs text-muted">At least 1 project required</p>
+                            ) : null}
                           </div>
-                          {isLastProject ? (
-                            <p className="mt-2 text-xs text-muted">At least 1 project required</p>
-                          ) : null}
-                        </div>
-                      )
-                    })
+                        )
+                      })}
+                    </div>
                   )}
                 </div>
+              </>
+            ) : (
+              <div className="py-12 text-center">
+                <p className="text-sm font-semibold text-ink">No member selected</p>
+                <p className="mt-2 text-sm text-muted">
+                  Select a member from the list to view their projects.
+                </p>
               </div>
-            </>
-          ) : (
-            <div className="py-12 text-center">
-              <p className="text-sm font-semibold text-ink">No member selected</p>
-              <p className="mt-2 text-sm text-muted">Select a member from the list to view their projects.</p>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
-
       <Modal
         open={editingProfile}
         title="Edit Member Details"

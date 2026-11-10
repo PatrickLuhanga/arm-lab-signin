@@ -201,6 +201,13 @@ describe('Phase 4 Arm Members directory', () => {
     await screen.findAllByText('Anele Mokoena')
     await screen.findByText('RISC-V Sensor Node')
 
+    const breadcrumb = screen.getByRole('navigation', { name: 'Breadcrumb' })
+    expect(within(breadcrumb).getByRole('link', { name: 'More' })).toHaveAttribute(
+      'href',
+      '/sections',
+    )
+    expect(within(breadcrumb).getByText('Arm Members')).toBeInTheDocument()
+
     const deleteButton = screen.getByRole('button', { name: 'Delete' })
     expect(deleteButton).toBeDisabled()
     expect(screen.getByText('At least 1 project required')).toBeInTheDocument()
@@ -294,6 +301,14 @@ describe('Phase 4 Interns directory', () => {
     renderWithRouter(<InternsPage />)
 
     await screen.findAllByText('Thandi Mahlangu')
+
+    const breadcrumb = screen.getByRole('navigation', { name: 'Breadcrumb' })
+    expect(within(breadcrumb).getByRole('link', { name: 'More' })).toHaveAttribute(
+      'href',
+      '/sections',
+    )
+    expect(within(breadcrumb).getByText('Interns')).toBeInTheDocument()
+
     expect(screen.getAllByText('DUT Arm Lab').length).toBeGreaterThan(0)
     expect(screen.getByText('09:15')).toBeInTheDocument()
 

@@ -1,6 +1,7 @@
 import { Download, Eye, Pencil, Play, Plus, Square, Trash2, Users } from 'lucide-react'
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+import Breadcrumbs from '../components/Breadcrumbs'
 import ConfirmModal from '../components/ConfirmModal'
 import Modal from '../components/Modal'
 import StatusBanner, { type BannerTone } from '../components/StatusBanner'
@@ -247,12 +248,11 @@ export default function EventsPage() {
   }
 
   return (
-    <section className="mx-auto w-full max-w-5xl">
-      <div className="mb-6">
+    <section className="w-full">
+      <Breadcrumbs items={[{ label: 'More', to: '/sections' }, { label: 'Events' }]} />
+
+      <div className="mb-5">
         <h1 className="text-2xl font-semibold tracking-tight text-ink">Events</h1>
-        <p className="mt-2 text-sm text-muted">
-          Schedule events, run live guest check-in, and export attendance rosters.
-        </p>
       </div>
 
       {error ? (

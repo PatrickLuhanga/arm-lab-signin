@@ -1,5 +1,6 @@
 import { Pencil, Search } from 'lucide-react'
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react'
+import Breadcrumbs from '../components/Breadcrumbs'
 import Modal from '../components/Modal'
 import RoleBadge from '../components/RoleBadge'
 import StatusBanner, { type BannerTone } from '../components/StatusBanner'
@@ -140,28 +141,11 @@ export default function InternsPage() {
   }
 
   return (
-    <section className="mx-auto w-full max-w-6xl">
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-ink">Interns</h1>
-          <p className="mt-2 text-sm text-muted">
-            Search the intern directory, edit details, and review recent sign-ins.
-          </p>
-        </div>
-        <label className="relative block w-full sm:w-80">
-          <Search
-            size={18}
-            aria-hidden="true"
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted"
-          />
-          <input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search interns..."
-            aria-label="Search interns"
-            className="h-12 w-full rounded-md border border-border bg-surface pl-10 pr-4 text-sm text-ink placeholder:text-muted focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-accent/25 focus:outline-none"
-          />
-        </label>
+    <section className="w-full">
+      <Breadcrumbs items={[{ label: 'More', to: '/sections' }, { label: 'Interns' }]} />
+
+      <div className="mb-5">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Interns</h1>
       </div>
 
       {error ? (
@@ -176,116 +160,143 @@ export default function InternsPage() {
         </div>
       ) : null}
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(260px,340px)_1fr]">
-        <div
-          data-testid="intern-list"
-          className="max-h-[70vh] overflow-y-auto rounded-lg border border-border bg-surface"
-        >
-          {loading ? (
-            <p className="px-4 py-8 text-center text-sm text-muted">Loading interns...</p>
-          ) : filteredProfiles.length === 0 ? (
-            <p className="px-4 py-8 text-center text-sm text-muted">No interns match your search.</p>
-          ) : (
-            <ul className="divide-y divide-border">
-              {filteredProfiles.map((profile) => (
-                <li key={profile.id}>
+      <div className="overflow-hidden rounded-md border border-border bg-surface">
+        <div className="grid lg:grid-cols-[320px_1fr]">
+          <div className="border-b border-border lg:border-b-0 lg:border-r">
+            <div className="border-b border-border p-3">
+              <label className="relative block">
+                <Search
+                  size={16}
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted"
+                />
+                <input
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Search interns..."
+                  aria-label="Search interns"
+                  className="h-10 w-full rounded border border-border bg-surface pl-9 pr-3 text-sm text-ink placeholder:text-muted focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-accent/25 focus:outline-none"
+                />
+              </label>
+            </div>
+
+            <div data-testid="intern-list" className="max-h-[70vh] overflow-y-auto">
+              {loading ? (
+                <p className="px-4 py-8 text-center text-sm text-muted">Loading interns...</p>
+              ) : filteredProfiles.length === 0 ? (
+                <p className="px-4 py-8 text-center text-sm text-muted">
+                  No interns match your search.
+                </p>
+              ) : (
+                <ul className="divide-y divide-border">
+                  {filteredProfiles.map((profile) => (
+                    <li key={profile.id}>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedId(profile.id)}
+                        aria-pressed={profile.id === selectedId}
+                        className={`flex min-h-16 w-full flex-col items-start gap-1 px-4 py-3 text-left transition ${
+                          profile.id === selectedId
+                            ? 'bg-surface-subtle'
+                            : 'hover:bg-surface-subtle'
+                        }`}
+                      >
+                        <span className="text-sm font-semibold text-ink">{profile.full_name}</span>
+                        <span className="text-xs text-muted">{profile.student_number}</span>
+                        <span className="text-xs text-muted">
+                          {profile.organization ?? 'No organization'} |{' '}
+                          {pluralize(profile.sign_in_count, 'sign-in')}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+
+          <div className="p-6">
+            {selectedProfile ? (
+              <>
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="text-xl font-semibold tracking-tight text-ink">
+                        {selectedProfile.full_name}
+                      </h2>
+                      <RoleBadge role="intern" />
+                    </div>
+                    <p className="mt-1 text-sm text-muted">
+                      {selectedProfile.organization ?? 'No organization recorded'}
+                    </p>
+                  </div>
                   <button
                     type="button"
-                    onClick={() => setSelectedId(profile.id)}
-                    aria-pressed={profile.id === selectedId}
-                    className={`flex min-h-16 w-full flex-col items-start gap-1 px-4 py-3 text-left transition ${
-                      profile.id === selectedId ? 'bg-surface-subtle' : 'hover:bg-surface-subtle'
-                    }`}
+                    onClick={openEdit}
+                    className="inline-flex min-h-12 items-center gap-2 rounded-md border border-border bg-surface px-4 text-sm font-semibold text-ink transition hover:bg-surface-subtle"
                   >
-                    <span className="text-sm font-semibold text-ink">{profile.full_name}</span>
-                    <span className="text-xs text-muted">{profile.student_number}</span>
-                    <span className="text-xs text-muted">
-                      {profile.organization ?? 'No organization'} |{' '}
-                      {pluralize(profile.sign_in_count, 'sign-in')}
-                    </span>
+                    <Pencil size={16} aria-hidden="true" />
+                    Edit
                   </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+                </div>
 
-        <div className="rounded-lg border border-border bg-surface p-6">
-          {selectedProfile ? (
-            <>
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="text-xl font-semibold tracking-tight text-ink">
-                      {selectedProfile.full_name}
-                    </h2>
-                    <RoleBadge role="intern" />
+                <dl className="mt-5 divide-y divide-border border-y border-border">
+                  <div className="flex items-center justify-between gap-4 py-2.5">
+                    <dt className="text-xs font-medium text-muted">Student #</dt>
+                    <dd className="text-sm font-medium text-ink">
+                      {selectedProfile.student_number}
+                    </dd>
                   </div>
-                  <p className="mt-1 text-sm text-muted">
-                    {selectedProfile.organization ?? 'No organization recorded'}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={openEdit}
-                  className="inline-flex min-h-12 items-center gap-2 rounded-md border border-border bg-surface px-4 text-sm font-semibold text-ink transition hover:bg-surface-subtle"
-                >
-                  <Pencil size={16} aria-hidden="true" />
-                  Edit
-                </button>
-              </div>
+                  <div className="flex items-center justify-between gap-4 py-2.5">
+                    <dt className="text-xs font-medium text-muted">Course</dt>
+                    <dd className="text-sm font-medium text-ink">{selectedProfile.course}</dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-4 py-2.5">
+                    <dt className="text-xs font-medium text-muted">Organization</dt>
+                    <dd className="text-sm font-medium text-ink">
+                      {selectedProfile.organization ?? '—'}
+                    </dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-4 py-2.5">
+                    <dt className="text-xs font-medium text-muted">Total Sign-Ins</dt>
+                    <dd className="text-sm font-medium text-ink">
+                      {selectedProfile.sign_in_count}
+                    </dd>
+                  </div>
+                </dl>
 
-              <dl className="mt-5 grid gap-3 sm:grid-cols-2">
-                <div className="rounded-md border border-border bg-surface-subtle px-4 py-3">
-                  <dt className="text-xs font-medium text-muted">Student #</dt>
-                  <dd className="mt-1 text-sm font-semibold text-ink">{selectedProfile.student_number}</dd>
+                <div className="mt-6">
+                  <h3 className="text-base font-semibold text-ink">Recent Sign-Ins</h3>
+                  {recentSignIns.length === 0 ? (
+                    <p className="mt-2 text-sm text-muted">No sign-ins recorded yet.</p>
+                  ) : (
+                    <ul className="mt-2 divide-y divide-border border-t border-border">
+                      {recentSignIns.map((signIn) => (
+                        <li
+                          key={signIn.id}
+                          className="flex items-center justify-between gap-3 py-2.5 text-sm"
+                        >
+                          <span className="text-ink">{signIn.sign_in_date}</span>
+                          <span className="text-muted">
+                            {formatTimeFromTimestamp(signIn.signed_in_at)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
-                <div className="rounded-md border border-border bg-surface-subtle px-4 py-3">
-                  <dt className="text-xs font-medium text-muted">Course</dt>
-                  <dd className="mt-1 text-sm font-semibold text-ink">{selectedProfile.course}</dd>
-                </div>
-                <div className="rounded-md border border-border bg-surface-subtle px-4 py-3">
-                  <dt className="text-xs font-medium text-muted">Organization</dt>
-                  <dd className="mt-1 text-sm font-semibold text-ink">
-                    {selectedProfile.organization ?? 'â€”'}
-                  </dd>
-                </div>
-                <div className="rounded-md border border-border bg-surface-subtle px-4 py-3">
-                  <dt className="text-xs font-medium text-muted">Total Sign-Ins</dt>
-                  <dd className="mt-1 text-sm font-semibold text-ink">{selectedProfile.sign_in_count}</dd>
-                </div>
-              </dl>
-
-              <div className="mt-6">
-                <h3 className="text-base font-semibold text-ink">Recent Sign-Ins</h3>
-                {recentSignIns.length === 0 ? (
-                  <p className="mt-3 rounded-md border border-border bg-surface-subtle px-4 py-4 text-sm text-muted">
-                    No sign-ins recorded yet.
-                  </p>
-                ) : (
-                  <ul className="mt-3 divide-y divide-border rounded-md border border-border bg-surface-subtle">
-                    {recentSignIns.map((signIn) => (
-                      <li
-                        key={signIn.id}
-                        className="flex items-center justify-between gap-3 px-4 py-3 text-sm"
-                      >
-                        <span className="text-ink">{signIn.sign_in_date}</span>
-                        <span className="text-muted">{formatTimeFromTimestamp(signIn.signed_in_at)}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+              </>
+            ) : (
+              <div className="py-12 text-center">
+                <p className="text-sm font-semibold text-ink">No intern selected</p>
+                <p className="mt-2 text-sm text-muted">
+                  Select an intern from the list to view their details.
+                </p>
               </div>
-            </>
-          ) : (
-            <div className="py-12 text-center">
-              <p className="text-sm font-semibold text-ink">No intern selected</p>
-              <p className="mt-2 text-sm text-muted">Select an intern from the list to view their details.</p>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
-
       <Modal open={editing} title="Edit Intern Details" onClose={() => setEditing(false)}>
         <form onSubmit={handleSubmit} className="space-y-4">
           {formError ? <StatusBanner tone="error" message={formError} /> : null}
