@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --app-bg: #f8fafc;
+  --surface: #ffffff;
+  --border-color: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-muted: #64748b;
+  --accent: #0091bd;
+  --success: #1c8441;
+  --warning: #d97706;
+  --danger: #d11f2d;
+  --role-member: #5370a3;
+  --role-intern: #812575;
+  color-scheme: light;
+}
+
+.dark {
+  --app-bg: #080225;
+  --surface: #110b36;
+  --border-color: #231b54;
+  --text-primary: #f8fafc;
+  --text-muted: #94a3b8;
+  --accent: #00a8db;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --role-member: #7b96c9;
+  --role-intern: #a56eae;
+  color-scheme: dark;
+}
+
+*,
+::before,
+::after {
+  border-color: var(--border-color);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply min-h-screen bg-app font-sans text-ink antialiased;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
