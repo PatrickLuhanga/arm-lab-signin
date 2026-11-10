@@ -86,7 +86,7 @@ describe('Phase 1 theme shell', () => {
 
     expect(screen.getByText('Other Route')).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: /arm lab home/i }))
+    fireEvent.click(screen.getByRole('button', { name: 'Arm Lab' }))
 
     expect(await screen.findByText('Home Route')).toBeInTheDocument()
     expect(window.location.hash).toBe('#/')

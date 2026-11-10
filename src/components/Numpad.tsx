@@ -10,7 +10,7 @@ interface NumpadProps {
 const DIGITS = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 
 const keyClass =
-  'flex h-14 min-h-12 items-center justify-center rounded-xl border border-border bg-surface text-xl font-semibold text-ink transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-50'
+  'flex h-14 min-h-12 items-center justify-center rounded-md border border-border bg-surface text-xl font-semibold text-ink transition hover:bg-surface-subtle disabled:cursor-not-allowed disabled:opacity-50'
 
 export default function Numpad({ onDigit, onClear, onBackspace, disabled = false }: NumpadProps) {
   return (

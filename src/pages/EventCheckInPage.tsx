@@ -253,7 +253,7 @@ export default function EventCheckInPage() {
   if (loading) {
     return (
       <section className="mx-auto w-full max-w-5xl">
-        <p className="rounded-2xl border border-border bg-surface px-6 py-10 text-center text-sm text-muted">
+        <p className="rounded-lg border border-border bg-surface px-6 py-10 text-center text-sm text-muted">
           Loading event...
         </p>
       </section>
@@ -263,7 +263,7 @@ export default function EventCheckInPage() {
   if (!event || event.status === 'ended') {
     return (
       <section className="mx-auto flex w-full max-w-xl flex-col items-center justify-center text-center">
-        <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-border bg-surface text-danger">
+        <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-lg border border-border bg-surface text-danger">
           <ShieldCheck size={24} aria-hidden="true" />
         </div>
         <h1 className="text-2xl font-semibold tracking-tight text-ink">
@@ -275,7 +275,7 @@ export default function EventCheckInPage() {
         </p>
         <Link
           to="/events"
-          className="mt-6 inline-flex min-h-12 items-center justify-center rounded-xl bg-accent px-5 text-sm font-semibold text-white transition hover:bg-accent/90"
+          className="mt-6 inline-flex min-h-12 items-center justify-center rounded-md bg-accent px-5 text-sm font-semibold text-white transition hover:bg-accent-hover"
         >
           Back to Events
         </Link>
@@ -285,11 +285,11 @@ export default function EventCheckInPage() {
 
   return (
     <section className="mx-auto w-full max-w-6xl">
-      <div className="rounded-2xl border border-border bg-surface p-6 shadow-card">
+      <div className="rounded-lg border border-border bg-surface p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-success/10 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-success">
+              <span className="rounded bg-success-fill px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-success">
                 LIVE
               </span>
               <h1 className="text-2xl font-semibold tracking-tight text-ink">{event.title}</h1>
@@ -346,7 +346,7 @@ export default function EventCheckInPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="inline-flex min-h-12 items-center justify-center rounded-xl bg-accent px-5 text-sm font-semibold text-white transition hover:bg-accent/90 disabled:opacity-60"
+              className="inline-flex min-h-12 items-center justify-center rounded-md bg-accent px-5 text-sm font-semibold text-white transition hover:bg-accent-hover disabled:opacity-60"
             >
               {submitting ? 'CHECKING IN...' : 'CHECK IN AS GUEST'}
             </button>
@@ -355,7 +355,7 @@ export default function EventCheckInPage() {
         </form>
       </div>
 
-      <div className="mt-6 rounded-2xl border border-border bg-surface shadow-card">
+      <div className="mt-6 rounded-lg border border-border bg-surface">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
           <p className="text-lg font-semibold text-ink">{pluralize(guests.length, 'Guest')}</p>
           <label className="relative block w-full sm:w-72">
@@ -369,13 +369,13 @@ export default function EventCheckInPage() {
               onChange={(changeEvent) => setSearch(changeEvent.target.value)}
               placeholder="Search guests..."
               aria-label="Search guests"
-              className="h-11 w-full rounded-full border border-border bg-app pl-9 pr-4 text-sm text-ink placeholder:text-muted focus:border-accent"
+              className="h-11 w-full rounded-full border border-border bg-surface pl-9 pr-4 text-sm text-ink placeholder:text-muted focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-accent/25 focus:outline-none"
             />
           </label>
           <button
             type="button"
             onClick={handleExport}
-            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-surface px-4 text-sm font-semibold text-ink transition hover:border-accent hover:text-accent"
+            className="inline-flex min-h-11 items-center gap-2 rounded-md border border-border bg-surface px-4 text-sm font-semibold text-ink transition hover:bg-surface-subtle"
           >
             <Download size={16} aria-hidden="true" />
             Export
@@ -389,8 +389,8 @@ export default function EventCheckInPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[720px] border-collapse text-left">
-              <thead>
-                <tr className="text-xs font-semibold uppercase tracking-wide text-muted">
+              <thead className="bg-surface-subtle">
+                <tr className="border-b border-border text-xs font-medium text-muted">
                   <SortHeader label="Name" sortKey="name" activeKey={sortKey} direction={sortDirection} onSort={toggleSort} />
                   <SortHeader label="Organization" sortKey="organization" activeKey={sortKey} direction={sortDirection} onSort={toggleSort} />
                   <SortHeader label="Contact" sortKey="contact" activeKey={sortKey} direction={sortDirection} onSort={toggleSort} />
@@ -432,16 +432,16 @@ export default function EventCheckInPage() {
                         type="button"
                         onClick={() => setMenuOpenId(menuOpenId === guest.id ? null : guest.id)}
                         aria-label={`Actions for ${guest.full_name}`}
-                        className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-muted transition hover:bg-app hover:text-ink"
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-muted transition hover:bg-surface-subtle hover:text-ink"
                       >
                         <MoreHorizontal size={18} aria-hidden="true" />
                       </button>
                       {menuOpenId === guest.id ? (
-                        <div className="absolute right-4 top-12 z-20 w-44 overflow-hidden rounded-xl border border-border bg-surface py-1 shadow-xl">
+                        <div className="absolute right-4 top-12 z-20 w-44 overflow-hidden rounded-md border border-border bg-surface py-1 shadow-institutional">
                           <button
                             type="button"
                             onClick={() => openEditGuest(guest)}
-                            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-ink hover:bg-app"
+                            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-ink hover:bg-surface-subtle"
                           >
                             <Pencil size={14} aria-hidden="true" />
                             Edit Guest
@@ -452,7 +452,7 @@ export default function EventCheckInPage() {
                               setConfirmRemove(guest)
                               setMenuOpenId(null)
                             }}
-                            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-danger hover:bg-app"
+                            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-danger hover:bg-surface-subtle"
                           >
                             <Trash2 size={14} aria-hidden="true" />
                             Remove Entry
@@ -535,13 +535,13 @@ export default function EventCheckInPage() {
 }
 
 const inputClass =
-  'h-12 w-full rounded-xl border border-border bg-app px-3 text-sm text-ink placeholder:text-muted focus:border-accent'
+  'h-12 w-full rounded-md border border-border bg-surface px-3 text-sm text-ink placeholder:text-muted focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-accent/25 focus:outline-none'
 
 const primaryButtonClass =
-  'inline-flex min-h-12 items-center justify-center rounded-xl bg-accent px-5 text-sm font-semibold text-white transition hover:bg-accent/90 disabled:opacity-60'
+  'inline-flex min-h-12 items-center justify-center rounded-md bg-accent px-5 text-sm font-semibold text-white transition hover:bg-accent-hover disabled:opacity-60'
 
 const secondaryButtonClass =
-  'inline-flex min-h-12 items-center justify-center rounded-xl border border-border bg-surface px-5 text-sm font-semibold text-ink transition hover:border-accent hover:text-accent'
+  'inline-flex min-h-12 items-center justify-center rounded-md border border-border bg-surface px-5 text-sm font-semibold text-ink transition hover:bg-surface-subtle'
 
 function SortHeader({
   label,

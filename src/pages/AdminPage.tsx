@@ -1,8 +1,9 @@
-import { Database, Download, Search, Trash2 } from 'lucide-react'
+import { Database, Download, KeyRound, Lock, Search, Trash2 } from 'lucide-react'
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import ConfirmModal from '../components/ConfirmModal'
 import RoleBadge from '../components/RoleBadge'
 import StatusBanner, { type BannerTone } from '../components/StatusBanner'
+import { useAdminAuth } from '../context/AdminAuthContext'
 import {
   buildDailyAttendanceCsv,
   buildFullAttendanceSummaryCsv,
@@ -50,8 +51,15 @@ const TABS: { id: AdminTab; label: string }[] = [
 ]
 
 export default function AdminPage() {
+  const { lock, changePassword } = useAdminAuth()
   const [tab, setTab] = useState<AdminTab>('profiles')
   const [notice, setNotice] = useState<Notice | null>(null)
+
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [passwordError, setPasswordError] = useState<string | null>(null)
+  const [changingPassword, setChangingPassword] = useState(false)
 
   const [profiles, setProfiles] = useState<ProfileWithStats[]>([])
   const [profilesLoading, setProfilesLoading] = useState(true)
@@ -266,6 +274,35 @@ export default function AdminPage() {
     }
   }
 
+  async function handleChangePassword(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setPasswordError(null)
+
+    if (newPassword.length < 4) {
+      setPasswordError('New password must be at least 4 characters.')
+      return
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError('New passwords do not match.')
+      return
+    }
+
+    setChangingPassword(true)
+
+    try {
+      await changePassword(currentPassword, newPassword)
+      setCurrentPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
+      setNotice({ tone: 'success', message: 'Admin password changed.' })
+    } catch (changeError) {
+      setPasswordError(errorMessage(changeError))
+    } finally {
+      setChangingPassword(false)
+    }
+  }
+
   const profileQuery = profileSearch.trim().toLowerCase()
   const filteredProfiles = profiles.filter(
     (profile) =>
@@ -276,15 +313,24 @@ export default function AdminPage() {
 
   return (
     <section className="mx-auto w-full max-w-6xl">
-      <div className="mb-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Arm Lab</p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-ink">Admin</h1>
-        <p className="mt-2 text-sm text-muted">
-          Create profiles, review attendance, export CSV reports, and back up the local database.
-        </p>
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">Admin</h1>
+          <p className="mt-2 text-sm text-muted">
+            Create profiles, review attendance, export CSV reports, and back up the local database.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={lock}
+          className="inline-flex min-h-12 items-center gap-2 rounded-md border border-border bg-surface px-4 text-sm font-semibold text-ink transition hover:bg-surface-subtle"
+        >
+          <Lock size={16} aria-hidden="true" />
+          Lock Admin
+        </button>
       </div>
 
-      <div role="tablist" aria-label="Admin sections" className="mb-4 flex flex-wrap gap-2">
+      <div role="tablist" aria-label="Admin sections" className="mb-4 flex flex-wrap gap-1 border-b border-border">
         {TABS.map((item) => (
           <button
             key={item.id}
@@ -295,13 +341,19 @@ export default function AdminPage() {
               setTab(item.id)
               setNotice(null)
             }}
-            className={`min-h-12 rounded-xl border px-4 text-sm font-semibold transition ${
+            className={`relative min-h-12 px-4 text-sm font-medium transition ${
               tab === item.id
-                ? 'border-accent bg-accent/10 text-accent'
-                : 'border-border bg-surface text-muted hover:text-ink'
+                ? 'text-accent'
+                : 'text-muted hover:bg-surface-subtle hover:text-ink'
             }`}
           >
             {item.label}
+            {tab === item.id ? (
+              <span
+                className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-accent"
+                aria-hidden="true"
+              />
+            ) : null}
           </button>
         ))}
       </div>
@@ -314,7 +366,7 @@ export default function AdminPage() {
 
       {tab === 'profiles' ? (
         <div className="space-y-6">
-          <div className="rounded-2xl border border-border bg-surface p-6 shadow-card">
+          <div className="rounded-lg border border-border bg-surface p-6">
             <h2 className="text-lg font-semibold tracking-tight text-ink">Create Profile</h2>
             <p className="mt-1 text-sm text-muted">
               Arm Members need an initial project. Interns need an organization.
@@ -373,7 +425,7 @@ export default function AdminPage() {
               </div>
 
               {createForm.role === 'arm_member' ? (
-                <div className="rounded-xl border border-border bg-app p-4">
+                <div className="rounded-md border border-border bg-surface-subtle p-4">
                   <p className="text-sm font-semibold text-ink">Mandatory Initial Project</p>
                   <div className="mt-3 grid gap-4 sm:grid-cols-2">
                     <Field label="Project Title" htmlFor="admin-project-title">
@@ -424,7 +476,7 @@ export default function AdminPage() {
             </form>
           </div>
 
-          <div className="rounded-2xl border border-border bg-surface shadow-card">
+          <div className="rounded-lg border border-border bg-surface">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
               <h2 className="text-lg font-semibold tracking-tight text-ink">Manage Profiles</h2>
               <label className="relative block w-full sm:w-72">
@@ -438,7 +490,7 @@ export default function AdminPage() {
                   onChange={(event) => setProfileSearch(event.target.value)}
                   placeholder="Search profiles..."
                   aria-label="Search profiles"
-                  className="h-11 w-full rounded-full border border-border bg-app pl-9 pr-4 text-sm text-ink placeholder:text-muted focus:border-accent"
+                  className="h-11 w-full rounded-full border border-border bg-surface pl-9 pr-4 text-sm text-ink placeholder:text-muted focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-accent/25 focus:outline-none"
                 />
               </label>
             </div>
@@ -451,7 +503,7 @@ export default function AdminPage() {
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[640px] border-collapse text-left">
                   <thead>
-                    <tr className="border-b border-border text-xs font-semibold uppercase tracking-wide text-muted">
+                    <tr className="border-b border-border text-xs font-medium text-muted">
                       <th scope="col" className="px-5 py-3">Name</th>
                       <th scope="col" className="px-5 py-3">Student #</th>
                       <th scope="col" className="px-5 py-3">Role</th>
@@ -474,7 +526,7 @@ export default function AdminPage() {
                           <button
                             type="button"
                             onClick={() => setConfirmDeleteProfile(profile)}
-                            className="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 text-xs font-semibold text-danger transition hover:border-danger"
+                            className="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 text-xs font-semibold text-danger transition hover:bg-danger-fill"
                           >
                             <Trash2 size={14} aria-hidden="true" />
                             Delete
@@ -491,7 +543,7 @@ export default function AdminPage() {
       ) : null}
 
       {tab === 'logs' ? (
-        <div className="rounded-2xl border border-border bg-surface p-6 shadow-card">
+        <div className="rounded-lg border border-border bg-surface p-6">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <h2 className="text-lg font-semibold tracking-tight text-ink">Daily Attendance Logs</h2>
@@ -532,14 +584,14 @@ export default function AdminPage() {
           {attendanceLoading ? (
             <p className="py-8 text-center text-sm text-muted">Loading attendance...</p>
           ) : attendance.length === 0 ? (
-            <p className="mt-6 rounded-xl border border-border bg-app px-4 py-6 text-center text-sm text-muted">
+            <p className="mt-6 rounded-md border border-border bg-surface px-4 py-6 text-center text-sm text-muted">
               No sign-ins recorded for {attendanceDate}.
             </p>
           ) : (
             <div className="mt-6 overflow-x-auto">
               <table className="w-full min-w-[640px] border-collapse text-left">
                 <thead>
-                  <tr className="border-b border-border text-xs font-semibold uppercase tracking-wide text-muted">
+                  <tr className="border-b border-border text-xs font-medium text-muted">
                     <th scope="col" className="px-4 py-3">Time</th>
                     <th scope="col" className="px-4 py-3">Name</th>
                     <th scope="col" className="px-4 py-3">Student #</th>
@@ -567,9 +619,9 @@ export default function AdminPage() {
       ) : null}
 
       {tab === 'backup' ? (
-        <div className="rounded-2xl border border-border bg-surface p-6 shadow-card">
+        <div className="rounded-lg border border-border bg-surface p-6">
           <div className="flex items-start gap-3">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-border bg-app text-accent">
+            <span className="mt-0.5 flex h-12 w-12 shrink-0 items-center justify-center text-slate-500 dark:text-slate-400">
               <Database size={22} aria-hidden="true" />
             </span>
             <div>
@@ -578,7 +630,7 @@ export default function AdminPage() {
                 The local SQLite database is stored in the application config directory. Backing it
                 up copies the complete armlab.db file to a folder or USB drive you choose.
               </p>
-              <p className="mt-2 break-all rounded-lg bg-app px-3 py-2 font-mono text-xs text-muted">
+              <p className="mt-2 break-all rounded-lg bg-surface-subtle px-3 py-2 font-mono text-xs text-muted">
                 {databasePath ?? 'Resolving database location...'}
               </p>
             </div>
@@ -595,6 +647,65 @@ export default function AdminPage() {
           </button>
         </div>
       ) : null}
+
+      <div className="mt-6 rounded-lg border border-border bg-surface p-6">
+        <div className="flex items-start gap-3">
+          <span className="mt-0.5 flex h-12 w-12 shrink-0 items-center justify-center text-slate-500 dark:text-slate-400">
+            <KeyRound size={22} aria-hidden="true" />
+          </span>
+          <div>
+            <h2 className="text-lg font-semibold tracking-tight text-ink">Change Admin Password</h2>
+            <p className="mt-1 text-sm leading-6 text-muted">
+              Confirm the current password before setting a new one. The salted SHA-256 hash is
+              stored in SQLite.
+            </p>
+          </div>
+        </div>
+
+        <form onSubmit={handleChangePassword} className="mt-4 space-y-4">
+          {passwordError ? <StatusBanner tone="error" message={passwordError} /> : null}
+          <div className="grid gap-4 sm:grid-cols-3">
+            <Field label="Current Password" htmlFor="admin-current-password">
+              <input
+                id="admin-current-password"
+                type="password"
+                value={currentPassword}
+                onChange={(event) => setCurrentPassword(event.target.value)}
+                autoComplete="current-password"
+                className={inputClass}
+                required
+              />
+            </Field>
+            <Field label="New Password" htmlFor="admin-new-password">
+              <input
+                id="admin-new-password"
+                type="password"
+                value={newPassword}
+                onChange={(event) => setNewPassword(event.target.value)}
+                autoComplete="new-password"
+                className={inputClass}
+                required
+              />
+            </Field>
+            <Field label="Confirm New Password" htmlFor="admin-confirm-password">
+              <input
+                id="admin-confirm-password"
+                type="password"
+                value={confirmPassword}
+                onChange={(event) => setConfirmPassword(event.target.value)}
+                autoComplete="new-password"
+                className={inputClass}
+                required
+              />
+            </Field>
+          </div>
+          <div className="flex justify-end">
+            <button type="submit" disabled={changingPassword} className={primaryButtonClass}>
+              {changingPassword ? 'Changing...' : 'Change Password'}
+            </button>
+          </div>
+        </form>
+      </div>
 
       <ConfirmModal
         open={confirmDeleteProfile !== null}
@@ -614,13 +725,13 @@ export default function AdminPage() {
 }
 
 const inputClass =
-  'h-12 w-full rounded-xl border border-border bg-app px-3 text-sm text-ink focus:border-accent'
+  'h-12 w-full rounded-md border border-border bg-surface px-3 text-sm text-ink focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-accent/25 focus:outline-none'
 
 const primaryButtonClass =
-  'inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-accent px-5 text-sm font-semibold text-white transition hover:bg-accent/90 disabled:opacity-60'
+  'inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-accent px-5 text-sm font-semibold text-white transition hover:bg-accent-hover disabled:opacity-60'
 
 const secondaryButtonClass =
-  'inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-border bg-surface px-5 text-sm font-semibold text-ink transition hover:border-accent hover:text-accent disabled:opacity-60'
+  'inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-border bg-surface px-5 text-sm font-semibold text-ink transition hover:bg-surface-subtle disabled:opacity-60'
 
 function Field({
   label,

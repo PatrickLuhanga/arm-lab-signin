@@ -1,6 +1,14 @@
 import '@testing-library/jest-dom/vitest'
 import { cleanup } from '@testing-library/react'
+import { webcrypto } from 'node:crypto'
 import { afterEach, vi } from 'vitest'
+
+if (!globalThis.crypto?.subtle) {
+  Object.defineProperty(globalThis, 'crypto', {
+    value: webcrypto,
+    configurable: true,
+  })
+}
 
 vi.mock('@tauri-apps/plugin-sql', () => {
   const select = vi.fn().mockResolvedValue([])

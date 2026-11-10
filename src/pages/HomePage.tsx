@@ -119,42 +119,34 @@ export default function HomePage() {
 
   return (
     <section className="mx-auto flex w-full max-w-md flex-col items-center">
-      <div className="mb-6 text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Arm Lab</p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-ink">Daily Sign-In Register</h1>
+      <div className="mb-6 w-full text-center">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Daily Sign-In Register</h1>
         <p className="mt-2 text-sm text-muted" aria-live="off">
           {formatHeaderDate(now)}
         </p>
       </div>
 
-      <div className="w-full rounded-2xl border border-border bg-surface p-5 shadow-card sm:p-6">
+      <div className="w-full rounded-lg border border-border bg-surface p-5 sm:p-6">
         <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label
-              htmlFor="student-number"
-              className="mb-2 block text-sm font-medium text-ink"
-            >
-              Student Number
-            </label>
-            <input
-              id="student-number"
-              ref={inputRef}
-              value={studentNumber}
-              onChange={(event) => updateStudentNumber(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') {
-                  event.preventDefault()
-                  formRef.current?.requestSubmit()
-                }
-              }}
-              inputMode="numeric"
-              autoComplete="off"
-              enterKeyHint="done"
-              placeholder="Enter student number"
-              disabled={busy}
-              className="h-16 w-full rounded-xl border border-border bg-app px-4 text-center text-2xl font-semibold tracking-[0.3em] text-ink placeholder:text-sm placeholder:font-normal placeholder:tracking-normal placeholder:text-muted focus:border-accent disabled:opacity-60"
-            />
-          </div>
+          <input
+            id="student-number"
+            ref={inputRef}
+            aria-label="Student Number"
+            value={studentNumber}
+            onChange={(event) => updateStudentNumber(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault()
+                formRef.current?.requestSubmit()
+              }
+            }}
+            inputMode="numeric"
+            autoComplete="off"
+            enterKeyHint="done"
+            placeholder="Enter student number"
+            disabled={busy}
+            className="h-16 w-full rounded-md border border-border bg-surface px-4 text-center text-2xl font-semibold tracking-[0.3em] text-ink placeholder:text-sm placeholder:font-normal placeholder:tracking-normal placeholder:text-muted focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-accent/25 focus:outline-none disabled:opacity-60"
+          />
 
           <Numpad
             onDigit={handleDigit}
@@ -166,7 +158,7 @@ export default function HomePage() {
           <button
             type="submit"
             disabled={busy || studentNumber.trim().length === 0}
-            className="flex min-h-14 w-full items-center justify-center rounded-xl bg-accent px-5 text-base font-semibold text-white transition hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex min-h-14 w-full items-center justify-center rounded-md bg-accent px-5 text-base font-semibold text-white transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
           >
             {busy ? 'SIGNING IN...' : 'SIGN IN NOW'}
           </button>
@@ -176,10 +168,6 @@ export default function HomePage() {
           {feedback ? <StatusBanner tone={feedback.tone} message={feedback.message} /> : null}
         </div>
       </div>
-
-      <p className="mt-4 max-w-sm text-center text-xs leading-5 text-muted">
-        Use the keypad or a physical keyboard. Press Enter to submit a student number.
-      </p>
     </section>
   )
 }

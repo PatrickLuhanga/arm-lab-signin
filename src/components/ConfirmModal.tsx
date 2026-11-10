@@ -48,7 +48,7 @@ export default function ConfirmModal({
     <div
       role="presentation"
       onMouseDown={onCancel}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#080225]/60 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4"
     >
       <div
         role="dialog"
@@ -56,12 +56,12 @@ export default function ConfirmModal({
         aria-labelledby="confirm-modal-title"
         aria-describedby={description ? 'confirm-modal-description' : undefined}
         onMouseDown={(event) => event.stopPropagation()}
-        className="w-full max-w-md rounded-2xl border border-border bg-surface p-6 shadow-xl"
+        className="w-full max-w-md rounded-lg border border-border bg-surface p-6 shadow-institutional"
       >
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
             {destructive ? (
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-danger/10 text-danger">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center text-danger">
                 <AlertTriangle size={20} aria-hidden="true" />
               </span>
             ) : null}
@@ -73,7 +73,7 @@ export default function ConfirmModal({
             type="button"
             onClick={onCancel}
             aria-label="Close dialog"
-            className="-mr-2 -mt-2 inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-muted transition hover:bg-app hover:text-ink"
+            className="-mr-2 -mt-2 inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-md text-muted transition hover:bg-surface-subtle hover:text-ink"
           >
             <X size={18} aria-hidden="true" />
           </button>
@@ -89,15 +89,15 @@ export default function ConfirmModal({
           <button
             type="button"
             onClick={onCancel}
-            className="inline-flex min-h-12 items-center justify-center rounded-xl border border-border bg-surface px-5 text-sm font-semibold text-ink transition hover:border-accent hover:text-accent"
+            className="inline-flex min-h-12 items-center justify-center rounded-md border border-border bg-surface px-5 text-sm font-semibold text-ink transition hover:bg-surface-subtle"
           >
             {cancelLabel}
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className={`inline-flex min-h-12 items-center justify-center rounded-xl px-5 text-sm font-semibold text-white transition ${
-              destructive ? 'bg-danger hover:bg-danger/90' : 'bg-accent hover:bg-accent/90'
+            className={`inline-flex min-h-12 items-center justify-center rounded-md px-5 text-sm font-semibold text-white transition ${
+              destructive ? 'bg-danger hover:bg-danger/90' : 'bg-accent hover:bg-accent-hover'
             }`}
           >
             {confirmLabel}

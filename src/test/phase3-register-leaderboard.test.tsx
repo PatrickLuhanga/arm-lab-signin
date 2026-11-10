@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { LeaderboardEntry, Profile } from '../db/types'
 import { getLeaderboard, signInStudent } from '../db/signIns'
@@ -180,14 +180,22 @@ describe('Phase 3 combined leaderboard', () => {
     vi.useRealTimers()
   })
 
-  it('renders Arm Members and Interns in one table with role pills and period switching', async () => {
-    const monthEntries: LeaderboardEntry[] = [
-      { ...allTimeEntries[1], rank: 1 },
-      { ...allTimeEntries[0], rank: 2, sign_in_count: 0 },
-    ]
+  it('renders all four periods in order and filters out zero-count profiles', async () => {
+    const entriesByPeriod: Record<string, LeaderboardEntry[]> = {
+      today: [{ ...allTimeEntries[0], rank: 1, sign_in_count: 1 }],
+      week: [
+        { ...allTimeEntries[0], rank: 1, sign_in_count: 2 },
+        { ...allTimeEntries[1], rank: 2, sign_in_count: 1 },
+      ],
+      month: [
+        { ...allTimeEntries[1], rank: 1, sign_in_count: 1 },
+        { ...allTimeEntries[0], rank: 2, sign_in_count: 0 },
+      ],
+      all: allTimeEntries,
+    }
 
-    mockedGetLeaderboard.mockImplementation(async (period) =>
-      period === 'month' ? monthEntries : allTimeEntries,
+    mockedGetLeaderboard.mockImplementation(
+      async (period = 'all') => entriesByPeriod[period] ?? [],
     )
 
     render(<LeaderboardPage />)
@@ -200,19 +208,53 @@ describe('Phase 3 combined leaderboard', () => {
     expect(screen.getByText('1 day')).toBeInTheDocument()
     expect(mockedGetLeaderboard).toHaveBeenCalledWith('all')
 
-    fireEvent.click(screen.getByRole('button', { name: 'This Month' }))
+    const periodGroup = screen.getByRole('group', { name: 'Leaderboard period' })
+    const periodButtons = within(periodGroup).getAllByRole('button')
+    expect(periodButtons.map((button) => button.textContent)).toEqual([
+      'Today',
+      'This Week',
+      'This Month',
+      'All Time',
+    ])
 
+    fireEvent.click(within(periodGroup).getByRole('button', { name: 'Today' }))
+    await waitFor(() => {
+      expect(mockedGetLeaderboard).toHaveBeenCalledWith('today')
+    })
+    await waitFor(() => {
+      expect(screen.getByText('1 day')).toBeInTheDocument()
+    })
+
+    fireEvent.click(within(periodGroup).getByRole('button', { name: 'This Week' }))
+    await waitFor(() => {
+      expect(mockedGetLeaderboard).toHaveBeenCalledWith('week')
+    })
+
+    fireEvent.click(within(periodGroup).getByRole('button', { name: 'This Month' }))
     await waitFor(() => {
       expect(mockedGetLeaderboard).toHaveBeenCalledWith('month')
     })
-
     await waitFor(() => {
-      expect(screen.getByText('0 days')).toBeInTheDocument()
+      expect(screen.queryByText('Anele Mokoena')).not.toBeInTheDocument()
     })
+    expect(screen.getByText('Thandi Mahlangu')).toBeInTheDocument()
 
-    expect(screen.getByRole('button', { name: 'This Month' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    )
+    fireEvent.click(within(periodGroup).getByRole('button', { name: 'All Time' }))
+    await waitFor(() => {
+      expect(mockedGetLeaderboard).toHaveBeenCalledWith('all')
+    })
+    expect(await screen.findByText('Anele Mokoena')).toBeInTheDocument()
+  })
+
+  it('shows a period-specific empty state when no sign-ins match', async () => {
+    mockedGetLeaderboard.mockResolvedValue([])
+
+    render(<LeaderboardPage />)
+
+    expect(await screen.findByText('No sign-ins recorded yet.')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Today' }))
+
+    expect(await screen.findByText('No sign-ins recorded today.')).toBeInTheDocument()
   })
 })

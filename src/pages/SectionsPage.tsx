@@ -64,14 +64,14 @@ export default function SectionsPage() {
       to: '/events',
       title: 'Events',
       description: 'Active guest events with live check-in rosters and CSV exports.',
-      meta: `${pluralize(activeEventCount, 'active event')}`,
+      meta: pluralize(activeEventCount, 'active event'),
       icon: Calendar,
     },
     {
       to: '/admin',
       title: 'Admin',
-      description: 'Profiles, Logs & Backups',
-      meta: 'Manage the lab',
+      description: 'Profiles, logs and database backups.',
+      meta: 'Admin only',
       icon: SlidersHorizontal,
     },
   ]
@@ -79,8 +79,7 @@ export default function SectionsPage() {
   return (
     <section className="mx-auto w-full max-w-5xl">
       <div className="mb-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Arm Lab</p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-ink">More</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">More</h1>
         <p className="mt-2 text-sm text-muted">
           Jump into the directories, event check-in, or administration tools.
         </p>
@@ -100,16 +99,20 @@ export default function SectionsPage() {
             <Link
               key={card.to}
               to={card.to}
-              className="group flex min-h-44 flex-col justify-between rounded-2xl border border-border bg-surface p-6 shadow-card transition hover:border-accent"
+              className="flex min-h-40 flex-col justify-between rounded-lg border border-border bg-surface p-5 transition hover:bg-surface-subtle"
             >
               <div>
-                <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-app text-accent transition group-hover:border-accent">
-                  <Icon size={22} aria-hidden="true" />
-                </span>
-                <h2 className="mt-4 text-lg font-semibold tracking-tight text-ink">{card.title}</h2>
+                <div className="flex items-center gap-2">
+                  <Icon
+                    size={18}
+                    aria-hidden="true"
+                    className="shrink-0 text-slate-500 dark:text-slate-400"
+                  />
+                  <h2 className="text-base font-semibold tracking-tight text-ink">{card.title}</h2>
+                </div>
                 <p className="mt-2 text-sm leading-6 text-muted">{card.description}</p>
               </div>
-              <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-accent">{card.meta}</p>
+              <p className="mt-4 text-xs text-muted">{card.meta}</p>
             </Link>
           )
         })}

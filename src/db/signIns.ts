@@ -33,8 +33,42 @@ export function toLocalDateTimeString(date: Date = new Date()): string {
   return `${datePart} ${timePart}`
 }
 
-export function firstDayOfMonthString(date: Date = new Date()): string {
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-01`
+function startOfWeek(date: Date): Date {
+  const daysSinceMonday = (date.getDay() + 6) % 7
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() - daysSinceMonday)
+}
+
+function addDays(date: Date, days: number): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days)
+}
+
+export interface LeaderboardRange {
+  start: string
+  end: string
+}
+
+export function getLeaderboardRange(
+  period: LeaderboardPeriod,
+  now: Date = new Date(),
+): LeaderboardRange | null {
+  if (period === 'all') {
+    return null
+  }
+
+  if (period === 'today') {
+    const today = toLocalDateString(now)
+    return { start: today, end: today }
+  }
+
+  if (period === 'week') {
+    const monday = startOfWeek(now)
+    return { start: toLocalDateString(monday), end: toLocalDateString(addDays(monday, 6)) }
+  }
+
+  const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+  const lastOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+
+  return { start: toLocalDateString(firstOfMonth), end: toLocalDateString(lastOfMonth) }
 }
 
 export async function signInStudent(
@@ -107,23 +141,26 @@ export async function getLeaderboard(
     COUNT(s.id) AS sign_in_count
   `
 
-  const rows =
-    period === 'month'
-      ? await db.select<LeaderboardRow[]>(
-          `SELECT ${selectedColumns}
-           FROM profiles p
-           LEFT JOIN sign_ins s ON s.profile_id = p.id AND s.sign_in_date >= ?
-           GROUP BY p.id
-           ORDER BY sign_in_count DESC, p.full_name COLLATE NOCASE ASC`,
-          [firstDayOfMonthString(now)],
-        )
-      : await db.select<LeaderboardRow[]>(
-          `SELECT ${selectedColumns}
-           FROM profiles p
-           LEFT JOIN sign_ins s ON s.profile_id = p.id
-           GROUP BY p.id
-           ORDER BY sign_in_count DESC, p.full_name COLLATE NOCASE ASC`,
-        )
+  const range = getLeaderboardRange(period, now)
+
+  const rows = range
+    ? await db.select<LeaderboardRow[]>(
+        `SELECT ${selectedColumns}
+         FROM profiles p
+         JOIN sign_ins s ON s.profile_id = p.id
+           AND s.sign_in_date >= ?
+           AND s.sign_in_date <= ?
+         GROUP BY p.id
+         ORDER BY sign_in_count DESC, p.full_name COLLATE NOCASE ASC`,
+        [range.start, range.end],
+      )
+    : await db.select<LeaderboardRow[]>(
+        `SELECT ${selectedColumns}
+         FROM profiles p
+         JOIN sign_ins s ON s.profile_id = p.id
+         GROUP BY p.id
+         ORDER BY sign_in_count DESC, p.full_name COLLATE NOCASE ASC`,
+      )
 
   return rows.map((row, index) => ({
     rank: index + 1,

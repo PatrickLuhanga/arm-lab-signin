@@ -249,8 +249,7 @@ export default function EventsPage() {
   return (
     <section className="mx-auto w-full max-w-5xl">
       <div className="mb-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Arm Lab</p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-ink">Events</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Events</h1>
         <p className="mt-2 text-sm text-muted">
           Schedule events, run live guest check-in, and export attendance rosters.
         </p>
@@ -270,12 +269,12 @@ export default function EventsPage() {
 
       <div
         data-testid="events-action-bar"
-        className="mb-6 flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-surface p-4 shadow-card"
+        className="mb-6 flex flex-wrap items-center gap-2 rounded-lg border border-border bg-surface p-4"
       >
         <button
           type="button"
           onClick={openCreate}
-          className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-accent px-4 text-sm font-semibold text-white transition hover:bg-accent/90"
+          className="inline-flex min-h-12 items-center gap-2 rounded-md bg-accent px-4 text-sm font-semibold text-white transition hover:bg-accent-hover"
         >
           <Plus size={18} aria-hidden="true" />
           Create / Schedule Event
@@ -284,7 +283,7 @@ export default function EventsPage() {
           type="button"
           onClick={handleExportAll}
           disabled={exportingAll}
-          className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-border bg-surface px-4 text-sm font-semibold text-ink transition hover:border-accent hover:text-accent disabled:opacity-60"
+          className="inline-flex min-h-12 items-center gap-2 rounded-md border border-border bg-surface px-4 text-sm font-semibold text-ink transition hover:bg-surface-subtle disabled:opacity-60"
         >
           <Download size={18} aria-hidden="true" />
           {exportingAll ? 'Exporting...' : 'Export All Guests CSV'}
@@ -295,17 +294,17 @@ export default function EventsPage() {
         <div>
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-lg font-semibold tracking-tight text-ink">Active Events</h2>
-            <span className="text-xs font-semibold uppercase tracking-wide text-muted">
+            <span className="text-xs font-medium text-muted">
               {pluralize(activeEvents.length, 'live event')}
             </span>
           </div>
 
           {loading ? (
-            <p className="rounded-2xl border border-border bg-surface px-5 py-8 text-center text-sm text-muted">
+            <p className="rounded-lg border border-border bg-surface px-5 py-8 text-center text-sm text-muted">
               Loading events...
             </p>
           ) : activeEvents.length === 0 ? (
-            <p className="rounded-2xl border border-border bg-surface px-5 py-6 text-sm text-muted">
+            <p className="rounded-lg border border-border bg-surface px-5 py-6 text-sm text-muted">
               No active events. Schedule one above, then activate it when the doors open.
             </p>
           ) : (
@@ -313,12 +312,12 @@ export default function EventsPage() {
               {activeEvents.map((event) => (
                 <article
                   key={event.id}
-                  className="rounded-2xl border border-border bg-surface p-5 shadow-card"
+                  className="rounded-lg border border-border bg-surface p-5"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-full bg-success/10 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-success">
+                        <span className="rounded bg-success-fill px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-success">
                           LIVE
                         </span>
                         <h3 className="text-base font-semibold text-ink">{event.title}</h3>
@@ -339,14 +338,14 @@ export default function EventsPage() {
                   <div className="mt-4 flex flex-wrap gap-2">
                     <Link
                       to={`/events/${event.id}/checkin`}
-                      className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-accent px-4 text-sm font-semibold text-white transition hover:bg-accent/90"
+                      className="inline-flex min-h-12 items-center gap-2 rounded-md bg-accent px-4 text-sm font-semibold text-white transition hover:bg-accent-hover"
                     >
                       Open Check-In Screen
                     </Link>
                     <button
                       type="button"
                       onClick={() => setConfirmEnd(event)}
-                      className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-border bg-surface px-4 text-sm font-semibold text-danger transition hover:border-danger"
+                      className="inline-flex min-h-12 items-center gap-2 rounded-md border border-border bg-surface px-4 text-sm font-semibold text-danger transition hover:bg-danger-fill"
                     >
                       <Square size={16} aria-hidden="true" />
                       End Event
@@ -361,13 +360,13 @@ export default function EventsPage() {
         <div>
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-lg font-semibold tracking-tight text-ink">Scheduled Events</h2>
-            <span className="text-xs font-semibold uppercase tracking-wide text-muted">
+            <span className="text-xs font-medium text-muted">
               {pluralize(scheduledEvents.length, 'scheduled event')}
             </span>
           </div>
 
           {!loading && scheduledEvents.length === 0 ? (
-            <p className="rounded-2xl border border-border bg-surface px-5 py-6 text-sm text-muted">
+            <p className="rounded-lg border border-border bg-surface px-5 py-6 text-sm text-muted">
               No scheduled events.
             </p>
           ) : (
@@ -375,12 +374,12 @@ export default function EventsPage() {
               {scheduledEvents.map((event) => (
                 <article
                   key={event.id}
-                  className="rounded-2xl border border-border bg-surface p-5 shadow-card"
+                  className="rounded-lg border border-border bg-surface p-5"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-full bg-accent/10 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-accent">
+                        <span className="rounded bg-surface-subtle px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-muted">
                           SCHEDULED
                         </span>
                         <h3 className="text-base font-semibold text-ink">{event.title}</h3>
@@ -398,7 +397,7 @@ export default function EventsPage() {
                     <button
                       type="button"
                       onClick={() => handleActivate(event)}
-                      className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-accent px-4 text-sm font-semibold text-white transition hover:bg-accent/90"
+                      className="inline-flex min-h-12 items-center gap-2 rounded-md bg-accent px-4 text-sm font-semibold text-white transition hover:bg-accent-hover"
                     >
                       <Play size={16} aria-hidden="true" />
                       Activate Now
@@ -406,7 +405,7 @@ export default function EventsPage() {
                     <button
                       type="button"
                       onClick={() => openEdit(event)}
-                      className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-border bg-surface px-4 text-sm font-semibold text-ink transition hover:border-accent hover:text-accent"
+                      className="inline-flex min-h-12 items-center gap-2 rounded-md border border-border bg-surface px-4 text-sm font-semibold text-ink transition hover:bg-surface-subtle"
                     >
                       <Pencil size={16} aria-hidden="true" />
                       Edit
@@ -414,7 +413,7 @@ export default function EventsPage() {
                     <button
                       type="button"
                       onClick={() => setConfirmDelete(event)}
-                      className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-border bg-surface px-4 text-sm font-semibold text-danger transition hover:border-danger"
+                      className="inline-flex min-h-12 items-center gap-2 rounded-md border border-border bg-surface px-4 text-sm font-semibold text-danger transition hover:bg-danger-fill"
                     >
                       <Trash2 size={16} aria-hidden="true" />
                       Delete
@@ -430,13 +429,13 @@ export default function EventsPage() {
       <div data-testid="events-previous" className="mt-10">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-lg font-semibold tracking-tight text-ink">Previous Events</h2>
-          <span className="text-xs font-semibold uppercase tracking-wide text-muted">
+          <span className="text-xs font-medium text-muted">
             {pluralize(endedEvents.length, 'ended event')}
           </span>
         </div>
 
         {!loading && endedEvents.length === 0 ? (
-          <p className="rounded-2xl border border-border bg-surface px-5 py-6 text-sm text-muted">
+          <p className="rounded-lg border border-border bg-surface px-5 py-6 text-sm text-muted">
             No previous events yet.
           </p>
         ) : (
@@ -444,11 +443,11 @@ export default function EventsPage() {
             {endedEvents.map((event) => (
               <article
                 key={event.id}
-                className="rounded-2xl border border-border bg-surface p-5 shadow-card"
+                className="rounded-lg border border-border bg-surface p-5"
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-muted/10 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-muted">
+                    <span className="rounded bg-surface-subtle px-2 py-0.5 text-[11px] font-medium text-muted">
                       ENDED
                     </span>
                     <h3 className="text-base font-semibold text-ink">{event.title}</h3>
@@ -457,7 +456,7 @@ export default function EventsPage() {
                   <button
                     type="button"
                     onClick={() => openRoster(event)}
-                    className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-border bg-surface px-4 text-sm font-semibold text-ink transition hover:border-accent hover:text-accent"
+                    className="inline-flex min-h-12 items-center gap-2 rounded-md border border-border bg-surface px-4 text-sm font-semibold text-ink transition hover:bg-surface-subtle"
                   >
                     <Eye size={16} aria-hidden="true" />
                     View Roster
@@ -509,9 +508,9 @@ export default function EventsPage() {
                 type="button"
                 onClick={() => setCreateForm({ ...createForm, status: 'active' })}
                 aria-pressed={createForm.status === 'active'}
-                className={`min-h-12 rounded-xl border px-4 text-sm font-semibold transition ${
+                className={`min-h-12 rounded-md border px-4 text-sm font-semibold transition ${
                   createForm.status === 'active'
-                    ? 'border-accent bg-accent/10 text-accent'
+                    ? 'bg-accent text-white'
                     : 'border-border bg-surface text-muted hover:text-ink'
                 }`}
               >
@@ -521,9 +520,9 @@ export default function EventsPage() {
                 type="button"
                 onClick={() => setCreateForm({ ...createForm, status: 'scheduled' })}
                 aria-pressed={createForm.status === 'scheduled'}
-                className={`min-h-12 rounded-xl border px-4 text-sm font-semibold transition ${
+                className={`min-h-12 rounded-md border px-4 text-sm font-semibold transition ${
                   createForm.status === 'scheduled'
-                    ? 'border-accent bg-accent/10 text-accent'
+                    ? 'bg-accent text-white'
                     : 'border-border bg-surface text-muted hover:text-ink'
                 }`}
               >
@@ -662,13 +661,13 @@ export default function EventsPage() {
 }
 
 const inputClass =
-  'h-12 w-full rounded-xl border border-border bg-app px-3 text-sm text-ink focus:border-accent'
+  'h-12 w-full rounded-md border border-border bg-surface px-3 text-sm text-ink focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-accent/25 focus:outline-none'
 
 const primaryButtonClass =
-  'inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-accent px-5 text-sm font-semibold text-white transition hover:bg-accent/90 disabled:opacity-60'
+  'inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-accent px-5 text-sm font-semibold text-white transition hover:bg-accent-hover disabled:opacity-60'
 
 const secondaryButtonClass =
-  'inline-flex min-h-12 items-center justify-center rounded-xl border border-border bg-surface px-5 text-sm font-semibold text-ink transition hover:border-accent hover:text-accent'
+  'inline-flex min-h-12 items-center justify-center rounded-md border border-border bg-surface px-5 text-sm font-semibold text-ink transition hover:bg-surface-subtle'
 
 function Field({
   label,

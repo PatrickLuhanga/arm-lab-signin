@@ -243,34 +243,67 @@ describe('Phase 2 sign-in rules', () => {
     expect(outcome).toEqual({ status: 'not_found', studentNumber: '99999999' })
   })
 
-  it('ranks Arm Members and Interns together on the combined leaderboard', async () => {
+  it('ranks combined profiles across today, Monday-start week, month, and all time', async () => {
     const member = await createProfile(memberInput)
     const intern = await createProfile(internInput)
+    const now = new Date(2026, 10, 11, 12, 0, 0)
 
-    await signInStudent(member.student_number, new Date(2026, 10, 2, 9, 0, 0))
-    await signInStudent(member.student_number, new Date(2026, 10, 3, 9, 0, 0))
-    await signInStudent(intern.student_number, new Date(2026, 10, 4, 9, 0, 0))
+    // Wednesday 11 Nov 2026. The current week is Mon 9 Nov to Sun 15 Nov.
+    await signInStudent(member.student_number, new Date(2026, 10, 11, 9, 0, 0))
+    await signInStudent(member.student_number, new Date(2026, 10, 9, 9, 0, 0))
+    await signInStudent(member.student_number, new Date(2026, 10, 8, 9, 0, 0))
+    await signInStudent(member.student_number, new Date(2026, 9, 31, 9, 0, 0))
+    await signInStudent(intern.student_number, new Date(2026, 10, 10, 9, 0, 0))
+    await signInStudent(intern.student_number, new Date(2026, 8, 15, 9, 0, 0))
 
-    const allTime = await getLeaderboard('all', new Date(2026, 10, 10))
+    const today = await getLeaderboard('today', now)
+    expect(today).toHaveLength(1)
+    expect(today[0]).toMatchObject({
+      rank: 1,
+      full_name: 'Anele Mokoena',
+      role: 'arm_member',
+      sign_in_count: 1,
+    })
+
+    const week = await getLeaderboard('week', now)
+    expect(week).toHaveLength(2)
+    expect(week[0]).toMatchObject({
+      rank: 1,
+      full_name: 'Anele Mokoena',
+      sign_in_count: 2,
+    })
+    expect(week[1]).toMatchObject({
+      rank: 2,
+      full_name: 'Thandi Mahlangu',
+      sign_in_count: 1,
+    })
+
+    const month = await getLeaderboard('month', now)
+    expect(month).toHaveLength(2)
+    expect(month[0].sign_in_count).toBe(3)
+    expect(month[1].sign_in_count).toBe(1)
+
+    const allTime = await getLeaderboard('all', now)
     expect(allTime).toHaveLength(2)
     expect(allTime[0]).toMatchObject({
       rank: 1,
       full_name: 'Anele Mokoena',
       role: 'arm_member',
-      sign_in_count: 2,
+      sign_in_count: 4,
     })
     expect(allTime[1]).toMatchObject({
       rank: 2,
       full_name: 'Thandi Mahlangu',
       role: 'intern',
-      sign_in_count: 1,
+      sign_in_count: 2,
     })
 
-    const thisMonth = await getLeaderboard('month', new Date(2026, 10, 10))
-    expect(thisMonth[0].sign_in_count).toBe(2)
-
-    const emptyMonth = await getLeaderboard('month', new Date(2026, 11, 10))
-    expect(emptyMonth.every((entry) => entry.sign_in_count === 0)).toBe(true)
+    const emptyToday = await getLeaderboard('today', new Date(2027, 0, 15, 12, 0, 0))
+    const emptyWeek = await getLeaderboard('week', new Date(2027, 0, 15, 12, 0, 0))
+    const emptyMonth = await getLeaderboard('month', new Date(2027, 0, 15, 12, 0, 0))
+    expect(emptyToday).toHaveLength(0)
+    expect(emptyWeek).toHaveLength(0)
+    expect(emptyMonth).toHaveLength(0)
   })
 })
 

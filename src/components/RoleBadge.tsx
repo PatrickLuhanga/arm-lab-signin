@@ -6,13 +6,8 @@ interface RoleBadgeProps {
 }
 
 export default function RoleBadge({ role }: RoleBadgeProps) {
-  const color = role === 'arm_member' ? 'var(--role-member)' : 'var(--role-intern)'
-
   return (
-    <span
-      className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold text-white"
-      style={{ backgroundColor: color }}
-    >
+    <span className="inline-flex items-center rounded border border-slate-200 bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
       {roleLabel(role)}
     </span>
   )

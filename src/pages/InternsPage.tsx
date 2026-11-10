@@ -143,8 +143,7 @@ export default function InternsPage() {
     <section className="mx-auto w-full max-w-6xl">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Arm Lab</p>
-          <h1 className="mt-2 text-2xl font-semibold tracking-tight text-ink">Interns</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">Interns</h1>
           <p className="mt-2 text-sm text-muted">
             Search the intern directory, edit details, and review recent sign-ins.
           </p>
@@ -160,7 +159,7 @@ export default function InternsPage() {
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Search interns..."
             aria-label="Search interns"
-            className="h-12 w-full rounded-xl border border-border bg-surface pl-10 pr-4 text-sm text-ink placeholder:text-muted focus:border-accent"
+            className="h-12 w-full rounded-md border border-border bg-surface pl-10 pr-4 text-sm text-ink placeholder:text-muted focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-accent/25 focus:outline-none"
           />
         </label>
       </div>
@@ -180,7 +179,7 @@ export default function InternsPage() {
       <div className="grid gap-4 lg:grid-cols-[minmax(260px,340px)_1fr]">
         <div
           data-testid="intern-list"
-          className="max-h-[70vh] overflow-y-auto rounded-2xl border border-border bg-surface shadow-card"
+          className="max-h-[70vh] overflow-y-auto rounded-lg border border-border bg-surface"
         >
           {loading ? (
             <p className="px-4 py-8 text-center text-sm text-muted">Loading interns...</p>
@@ -195,7 +194,7 @@ export default function InternsPage() {
                     onClick={() => setSelectedId(profile.id)}
                     aria-pressed={profile.id === selectedId}
                     className={`flex min-h-16 w-full flex-col items-start gap-1 px-4 py-3 text-left transition ${
-                      profile.id === selectedId ? 'bg-accent/5' : 'hover:bg-app'
+                      profile.id === selectedId ? 'bg-surface-subtle' : 'hover:bg-surface-subtle'
                     }`}
                   >
                     <span className="text-sm font-semibold text-ink">{profile.full_name}</span>
@@ -211,7 +210,7 @@ export default function InternsPage() {
           )}
         </div>
 
-        <div className="rounded-2xl border border-border bg-surface p-6 shadow-card">
+        <div className="rounded-lg border border-border bg-surface p-6">
           {selectedProfile ? (
             <>
               <div className="flex flex-wrap items-start justify-between gap-3">
@@ -229,7 +228,7 @@ export default function InternsPage() {
                 <button
                   type="button"
                   onClick={openEdit}
-                  className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-border bg-surface px-4 text-sm font-semibold text-ink transition hover:border-accent hover:text-accent"
+                  className="inline-flex min-h-12 items-center gap-2 rounded-md border border-border bg-surface px-4 text-sm font-semibold text-ink transition hover:bg-surface-subtle"
                 >
                   <Pencil size={16} aria-hidden="true" />
                   Edit
@@ -237,22 +236,22 @@ export default function InternsPage() {
               </div>
 
               <dl className="mt-5 grid gap-3 sm:grid-cols-2">
-                <div className="rounded-xl border border-border bg-app px-4 py-3">
-                  <dt className="text-xs font-semibold uppercase tracking-wide text-muted">Student #</dt>
+                <div className="rounded-md border border-border bg-surface-subtle px-4 py-3">
+                  <dt className="text-xs font-medium text-muted">Student #</dt>
                   <dd className="mt-1 text-sm font-semibold text-ink">{selectedProfile.student_number}</dd>
                 </div>
-                <div className="rounded-xl border border-border bg-app px-4 py-3">
-                  <dt className="text-xs font-semibold uppercase tracking-wide text-muted">Course</dt>
+                <div className="rounded-md border border-border bg-surface-subtle px-4 py-3">
+                  <dt className="text-xs font-medium text-muted">Course</dt>
                   <dd className="mt-1 text-sm font-semibold text-ink">{selectedProfile.course}</dd>
                 </div>
-                <div className="rounded-xl border border-border bg-app px-4 py-3">
-                  <dt className="text-xs font-semibold uppercase tracking-wide text-muted">Organization</dt>
+                <div className="rounded-md border border-border bg-surface-subtle px-4 py-3">
+                  <dt className="text-xs font-medium text-muted">Organization</dt>
                   <dd className="mt-1 text-sm font-semibold text-ink">
                     {selectedProfile.organization ?? '—'}
                   </dd>
                 </div>
-                <div className="rounded-xl border border-border bg-app px-4 py-3">
-                  <dt className="text-xs font-semibold uppercase tracking-wide text-muted">Total Sign-Ins</dt>
+                <div className="rounded-md border border-border bg-surface-subtle px-4 py-3">
+                  <dt className="text-xs font-medium text-muted">Total Sign-Ins</dt>
                   <dd className="mt-1 text-sm font-semibold text-ink">{selectedProfile.sign_in_count}</dd>
                 </div>
               </dl>
@@ -260,11 +259,11 @@ export default function InternsPage() {
               <div className="mt-6">
                 <h3 className="text-base font-semibold text-ink">Recent Sign-Ins</h3>
                 {recentSignIns.length === 0 ? (
-                  <p className="mt-3 rounded-xl border border-border bg-app px-4 py-4 text-sm text-muted">
+                  <p className="mt-3 rounded-md border border-border bg-surface-subtle px-4 py-4 text-sm text-muted">
                     No sign-ins recorded yet.
                   </p>
                 ) : (
-                  <ul className="mt-3 divide-y divide-border rounded-xl border border-border bg-app">
+                  <ul className="mt-3 divide-y divide-border rounded-md border border-border bg-surface-subtle">
                     {recentSignIns.map((signIn) => (
                       <li
                         key={signIn.id}
@@ -341,13 +340,13 @@ export default function InternsPage() {
 }
 
 const inputClass =
-  'h-12 w-full rounded-xl border border-border bg-app px-3 text-sm text-ink focus:border-accent'
+  'h-12 w-full rounded-md border border-border bg-surface px-3 text-sm text-ink focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-accent/25 focus:outline-none'
 
 const primaryButtonClass =
-  'inline-flex min-h-12 items-center justify-center rounded-xl bg-accent px-5 text-sm font-semibold text-white transition hover:bg-accent/90 disabled:opacity-60'
+  'inline-flex min-h-12 items-center justify-center rounded-md bg-accent px-5 text-sm font-semibold text-white transition hover:bg-accent-hover disabled:opacity-60'
 
 const secondaryButtonClass =
-  'inline-flex min-h-12 items-center justify-center rounded-xl border border-border bg-surface px-5 text-sm font-semibold text-ink transition hover:border-accent hover:text-accent'
+  'inline-flex min-h-12 items-center justify-center rounded-md border border-border bg-surface px-5 text-sm font-semibold text-ink transition hover:bg-surface-subtle'
 
 function Field({
   label,

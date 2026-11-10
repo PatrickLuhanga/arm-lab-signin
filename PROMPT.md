@@ -4,7 +4,7 @@ You are an expert full-stack desktop engineer building the **Arm Lab Sign-In Sys
 
 ## 0. Critical Execution Rules (Read First)
 1. **Build Strictly Piece by Piece:** Follow the 6 Phases in Section 7 in exact order. **Complete ONLY Phase 1 first, then STOP.** Report what you built, show verification output (`npx tsc --noEmit`, `npm run build`, and `cargo check`), and wait for my approval before starting Phase 2. Repeat this stop-and-verify gate after every single phase.
-2. **Do Not Invent v2 Scope:** v1 is a local Windows prototype. Explicitly **DO NOT** build passwords/login gates, in-app announcements, email notifications, project visibility toggles, self-registration on the sign-in screen, or QR/RFID scanning.
+2. **Do Not Invent v2 Scope:** v1 is a local Windows prototype. The **Admin-only password gate is the sole permitted credential gate**. Explicitly **DO NOT** build general passwords/login gates, in-app announcements, email notifications, project visibility toggles, self-registration on the sign-in screen, or QR/RFID scanning.
 3. **Zero `localStorage`:** Do NOT use `localStorage` or `sessionStorage` anywhere. All data—including theme preference (`light` / `dark`)—must persist in SQLite (`armlab.db`).
 4. **Zero Emojis:** Do NOT use Unicode emojis anywhere in UI copy, buttons, status banners, leaderboards, or headings. Use crisp monochrome vector icons from `lucide-react` and the custom inline SVG logo only.
 5. **Production-Safe Desktop Packaging:**
@@ -25,29 +25,29 @@ You are an expert full-stack desktop engineer building the **Arm Lab Sign-In Sys
 ## 2. Aesthetic, Colors, Theme Toggle & Logo
 
 ### Aesthetic Benchmark
-Minimalist **"Envoy Visitors meets developer tooling (shadcn/ui / Vercel)"**: generous whitespace, crisp `1px` borders, clean geometric sans-serif typography (`Inter` / system sans), and **48×48 px minimum** click/touch targets on all buttons, cards, and numpad keys. Keep ~90% of the UI neutral and reserve color for the `ARM LAB` logo, primary actions, role pills, and status feedback.
+Accudemia-inspired institutional software: crisp `1px` neutral gray borders, flat surfaces, classic enterprise data tables, generous whitespace, and clean geometric sans-serif typography (`Inter` / system sans). Use `6px-8px` corner radii with `shadow-none` or very subtle elevation. Keep the interface neutral and reserve the matte institutional accent for solid primary CTAs, active tab indicators, and keyboard focus rings. Maintain **48x48 px minimum** touch targets on all buttons, cards, and numpad keys.
 
-### Color Tokens (Arm + DUT Palette)
+### Color Tokens (Accudemia-Inspired Neutral Institutional Palette)
 Configure Tailwind CSS / CSS variables with these exact tokens:
 
 | Token | Light Mode | Dark Mode | Usage |
 | :--- | :--- | :--- | :--- |
-| App Background | `#F8FAFC` | `#080225` | Main viewport canvas |
-| Card / Panel Surface | `#FFFFFF` | `#110B36` | Cards, forms, modals, numpad |
-| Border / Divider | `#E2E8F0` | `#231B54` | Crisp `1px` borders and table rules |
-| Primary Text | `#0F172A` | `#F8FAFC` | Headings, names, student numbers |
-| Muted Text | `#64748B` | `#94A3B8` | Subtitles, labels, timestamps |
-| Primary Accent | `#0091BD` | `#00A8DB` | Primary CTA buttons, focus rings, active states |
-| Success | `#1C8441` | `#22C55E` | Daily sign-in / guest check-in confirmation |
-| Warning / Duplicate | `#D97706` | `#F59E0B` | Same-day duplicate sign-in notice |
-| Error / Not Found | `#D11F2D` | `#EF4444` | Unregistered student number / destructive confirms |
-| Role Pill: Arm Member | `#5370A3` | `#7B96C9` | `Arm Member` qualification pill |
-| Role Pill: Intern | `#812575` | `#A56EAE` | `Intern` qualification pill |
+| App Canvas | `#F3F5F8` | `#121418` | Main viewport canvas |
+| Card / Header / Modal / Input Surface | `#FFFFFF` | `#1A1D23` | Cards, forms, modals, inputs |
+| Subtle Table Header / Secondary Surface | `#F8FAFC` | `#22262E` | Table header strips and metadata blocks |
+| Border / Divider | `#D5DCE4` | `#2E3440` | Strictly neutral `1px` borders and dividers |
+| Primary Text | `#1E293B` | `#F1F5F9` | Headings, names, student numbers |
+| Muted / Secondary Text | `#5A6577` | `#94A3B8` | Subtitles, labels, timestamps |
+| Matte Institutional Accent | `#0076A8` (hover `#00618A`) | `#0088C2` (hover `#0076A8`) | Solid primary CTAs, active tab indicators, keyboard focus rings |
+| Success | `#15803D` text / `#DCFCE7` fill | `#22C55E` text / `#14532D` fill | Sign-in and guest check-in confirmation |
+| Warning / Duplicate | `#B45309` text / `#FEF3C7` fill | `#FBBF24` text / `#451A03` fill | Same-day duplicate sign-in notice |
+| Error / Destructive | `#C81E1E` | `#F87171` | Not found and destructive confirms |
+| Role Badges | `slate-100` / `slate-700` / `slate-200` border | `slate-800` / `slate-300` / `slate-700` border | Understated `Arm Member` / `Intern` pills |
 
-### Top-Left `ARM LAB` Logo (Inline SVG Component)
-Create `<ArmLabLogo/>` as a clickable button that always navigates back to Home (`/`):
-- Left mark: 32×32px minimalist geometric microchip SVG with 8 pins and nested silicon core using a linear gradient across `#0091BD` (Cyan) -> `#7AB4B6` (Teal) -> `#812575` (Deep Purple) -> `#D11F2D` (Red).
-- Wordmark: Heavy bold `"ARM"` (`#0F172A` in light mode, `#F8FAFC` in dark mode) + bold gradient `"LAB"` (`from-[#0091BD] via-[#812575] to-[#D11F2D]`).
+### Top-Left Arm Lab Bubble Logo (Inline SVG Component)
+Create `<ArmLabLogo/>` as a clickable button with `aria-label="Arm Lab"` that always navigates back to Home (`/`):
+- Bubble mark: a clean `#0091BD` solid circular SVG, sized around `44x44px` to `48x48px`, with bold, crisp white `Arm` on the top line and `Lab` directly underneath on the second line, both centered inside the bubble. No text outside the circle.
+- App icon: the same `#0091BD` circular bubble with white `Arm` / `Lab` centered inside on a transparent background, regenerated for every Tauri icon size and used by `index.html` / `public/favicon.png`.
 
 ### Theme Toggle Behavior (Exact Requirement)
 - When **Light Mode** is active, the theme button displays a **crescent moon** icon (`Moon` from `lucide-react`) to indicate switching to Dark Mode.
@@ -125,7 +125,7 @@ CREATE TABLE IF NOT EXISTS app_settings (
 ---
 
 ## 4. Global Navigation Header
-Rendered persistently across the top of the app:
+Rendered persistently across the top of the app as a flat institutional bar with a `1px` neutral bottom border. Active routes use matte accent text with a clean bottom indicator, never colored borders:
 - **Left:** `<ArmLabLogo/>` (clicking returns to `/`) + contextual back button on sub-screens (e.g., `More` or `Back to Events`).
 - **Right (3 Global Controls):**
   1. **Theme Toggle Button** (`Moon` when Light, `Lightbulb` when Dark)
@@ -139,8 +139,9 @@ Rendered persistently across the top of the app:
 ### Screen 1: Home — Daily Sign-In Register (`/`)
 - Displays live local date and time (e.g., `Tuesday, 10 Nov 2026 | 09:15`).
 - Centered **Daily Sign-In Register** card:
-  - Auto-focused Student Number input field that supports both physical keyboards (submits on `Enter`, compatible with future USB scanners) and touch tapping.
+  - Auto-focused Student Number input (`aria-label="Student Number"`, `placeholder="Enter student number"`, no visible field label) that supports both physical keyboards (submits on `Enter`, compatible with USB scanners) and touch tapping.
   - Large touch-friendly on-screen numeric keypad (`1–9`, `CLR`, `0`, `DEL` backspace) + full-width **`SIGN IN NOW`** primary button below the keypad.
+  - The card contains only the input, numpad, `SIGN IN NOW` button, and the auto-clearing status banner. Do not render a redundant inner card header, a visible Student Number label, or a footer help caption.
 - **Feedback Banner & Auto-Clear (~4 seconds):**
   - **Success (Green):** `Welcome, [Full Name] -- Signed in at [HH:MM] ([Arm Member / Intern])`
   - **Duplicate Today (Amber):** `Already signed in today at [HH:MM]. Have a productive session, [Full Name].`
@@ -149,7 +150,7 @@ Rendered persistently across the top of the app:
 
 ### Screen 2: Combined Leaderboard (`/leaderboard`)
 - **Single unified leaderboard table** ranking **both Arm Members and Interns together** by sign-in count (`COUNT(sign_ins.id) DESC, full_name ASC`).
-- Period filter toggle at top-right: **`This Month`** vs. **`All Time`**.
+- Period filter toggle at top-right (in order): **`Today`**, **`This Week`**, **`This Month`**, and **`All Time`**. Boundaries are local kiosk dates: today, the current Monday-to-Sunday week, the current calendar month, or all recorded sign-ins. Hide profiles with zero sign-ins for the selected period and show a period-specific empty state.
 - Table columns:
   - **Rank:** `#1`, `#2`, `#3`... (styled cleanly, zero medal emojis).
   - **Name & Qualification:** Bold `full_name` on line 1; `course` + color-coded role pill (`Arm Member` or `Intern`) right next to the qualification on line 2.
@@ -226,6 +227,8 @@ Organized into 3 clean tabs:
    - Buttons: **`Export Selected Day CSV`** and **`Export Full Attendance Summary CSV`** (all profiles + total sign-ins).
 3. **Database Backup:**
    - Explains where the local SQLite database lives and provides a **`Download Database Backup (.db)`** button using native save dialog + file copy (plus a clean error/success banner) so an admin can back up `armlab.db` onto a USB drive.
+
+**Admin-Only Password Gate:** `/admin` is the ONLY password-protected route. On first launch, once SQLite is ready, if `admin_password_hash` is missing from `app_settings`, block the app with a **Set Admin Password** screen (new password plus confirmation, minimum 4 characters, `Eye`/`EyeOff` visibility toggles). Store a random salt in `admin_password_salt` and a salted SHA-256 hash in `admin_password_hash`; never hardcode a default password. Keep the unlock state strictly in React memory. Entering `/admin` while locked shows an Admin Password Prompt (password input, `Eye`/`EyeOff`, inline wrong-password error, Unlock, and Cancel back to `/sections`). Leaving `/admin` automatically re-locks it. Provide `Lock Admin` and `Change Admin Password` (current password, new password, confirmation) controls inside `AdminPage`. All other routes remain open without a password.
 
 ---
 
@@ -276,7 +279,7 @@ You are an expert full-stack desktop engineer building the **Arm Lab Sign-In Sys
 
 ## 0. Critical Execution Rules (Read First)
 1. **Build Strictly Piece by Piece:** Follow the 6 Phases in Section 7 in exact order. **Complete ONLY Phase 1 first, then STOP.** Report what you built, show verification output (`npx tsc --noEmit`, `npm run build`, `npm test`, and `cargo check`), and wait for my approval before starting Phase 2. Repeat this stop-and-verify gate after every single phase.
-2. **Do Not Invent v2 Scope:** v1 is a local Windows prototype. Explicitly **DO NOT** build passwords/login gates, in-app announcements, email notifications, project visibility toggles, self-registration on the sign-in screen, or QR/RFID scanning.
+2. **Do Not Invent v2 Scope:** v1 is a local Windows prototype. The **Admin-only password gate is the sole permitted credential gate**. Explicitly **DO NOT** build general passwords/login gates, in-app announcements, email notifications, project visibility toggles, self-registration on the sign-in screen, or QR/RFID scanning.
 3. **Zero `localStorage`:** Do NOT use `localStorage` or `sessionStorage` anywhere. All data—including theme preference (`light` / `dark`)—must persist in SQLite (`armlab.db`).
 4. **Zero Emojis:** Do NOT use Unicode emojis anywhere in UI copy, buttons, status banners, leaderboards, or headings. Use crisp monochrome vector icons from `lucide-react` and the custom inline SVG logo only.
 5. **Production-Safe Desktop Packaging:**
@@ -298,29 +301,29 @@ You are an expert full-stack desktop engineer building the **Arm Lab Sign-In Sys
 ## 2. Aesthetic, Colors, Theme Toggle & Logo
 
 ### Aesthetic Benchmark
-Minimalist **"Envoy Visitors meets developer tooling (shadcn/ui / Vercel)"**: generous whitespace, crisp `1px` borders, clean geometric sans-serif typography (`Inter` / system sans), and **48×48 px minimum** click/touch targets on all buttons, cards, and numpad keys. Keep ~90% of the UI neutral and reserve color for the `ARM LAB` logo, primary actions, role pills, and status feedback.
+Accudemia-inspired institutional software: crisp `1px` neutral gray borders, flat surfaces, classic enterprise data tables, generous whitespace, and clean geometric sans-serif typography (`Inter` / system sans). Use `6px-8px` corner radii with `shadow-none` or very subtle elevation. Keep the interface neutral and reserve the matte institutional accent for solid primary CTAs, active tab indicators, and keyboard focus rings. Maintain **48x48 px minimum** touch targets on all buttons, cards, and numpad keys.
 
-### Color Tokens (Arm + DUT Palette)
+### Color Tokens (Accudemia-Inspired Neutral Institutional Palette)
 Configure Tailwind CSS / CSS variables with these exact tokens:
 
 | Token | Light Mode | Dark Mode | Usage |
 | :--- | :--- | :--- | :--- |
-| App Background | `#F8FAFC` | `#080225` | Main viewport canvas |
-| Card / Panel Surface | `#FFFFFF` | `#110B36` | Cards, forms, modals, numpad |
-| Border / Divider | `#E2E8F0` | `#231B54` | Crisp `1px` borders and table rules |
-| Primary Text | `#0F172A` | `#F8FAFC` | Headings, names, student numbers |
-| Muted Text | `#64748B` | `#94A3B8` | Subtitles, labels, timestamps |
-| Primary Accent | `#0091BD` | `#00A8DB` | Primary CTA buttons, focus rings, active states |
-| Success | `#1C8441` | `#22C55E` | Daily sign-in / guest check-in confirmation |
-| Warning / Duplicate | `#D97706` | `#F59E0B` | Same-day duplicate sign-in notice |
-| Error / Not Found | `#D11F2D` | `#EF4444` | Unregistered student number / destructive confirms |
-| Role Pill: Arm Member | `#5370A3` | `#7B96C9` | `Arm Member` qualification pill |
-| Role Pill: Intern | `#812575` | `#A56EAE` | `Intern` qualification pill |
+| App Canvas | `#F3F5F8` | `#121418` | Main viewport canvas |
+| Card / Header / Modal / Input Surface | `#FFFFFF` | `#1A1D23` | Cards, forms, modals, inputs |
+| Subtle Table Header / Secondary Surface | `#F8FAFC` | `#22262E` | Table header strips and metadata blocks |
+| Border / Divider | `#D5DCE4` | `#2E3440` | Strictly neutral `1px` borders and dividers |
+| Primary Text | `#1E293B` | `#F1F5F9` | Headings, names, student numbers |
+| Muted / Secondary Text | `#5A6577` | `#94A3B8` | Subtitles, labels, timestamps |
+| Matte Institutional Accent | `#0076A8` (hover `#00618A`) | `#0088C2` (hover `#0076A8`) | Solid primary CTAs, active tab indicators, keyboard focus rings |
+| Success | `#15803D` text / `#DCFCE7` fill | `#22C55E` text / `#14532D` fill | Sign-in and guest check-in confirmation |
+| Warning / Duplicate | `#B45309` text / `#FEF3C7` fill | `#FBBF24` text / `#451A03` fill | Same-day duplicate sign-in notice |
+| Error / Destructive | `#C81E1E` | `#F87171` | Not found and destructive confirms |
+| Role Badges | `slate-100` / `slate-700` / `slate-200` border | `slate-800` / `slate-300` / `slate-700` border | Understated `Arm Member` / `Intern` pills |
 
-### Top-Left `ARM LAB` Logo (Inline SVG Component)
-Create `<ArmLabLogo/>` as a clickable button that always navigates back to Home (`/`):
-- Left mark: 32×32px minimalist geometric microchip SVG with 8 pins and nested silicon core using a linear gradient across `#0091BD` (Cyan) -> `#7AB4B6` (Teal) -> `#812575` (Deep Purple) -> `#D11F2D` (Red).
-- Wordmark: Heavy bold `"ARM"` (`#0F172A` in light mode, `#F8FAFC` in dark mode) + bold gradient `"LAB"` (`from-[#0091BD] via-[#812575] to-[#D11F2D]`).
+### Top-Left Arm Lab Bubble Logo (Inline SVG Component)
+Create `<ArmLabLogo/>` as a clickable button with `aria-label="Arm Lab"` that always navigates back to Home (`/`):
+- Bubble mark: a clean `#0091BD` solid circular SVG, sized around `44x44px` to `48x48px`, with bold, crisp white `Arm` on the top line and `Lab` directly underneath on the second line, both centered inside the bubble. No text outside the circle.
+- App icon: the same `#0091BD` circular bubble with white `Arm` / `Lab` centered inside on a transparent background, regenerated for every Tauri icon size and used by `index.html` / `public/favicon.png`.
 
 ### Theme Toggle Behavior (Exact Requirement)
 - When **Light Mode** is active, the theme button displays a **crescent moon** icon (`Moon` from `lucide-react`) to indicate switching to Dark Mode.
@@ -398,7 +401,7 @@ CREATE TABLE IF NOT EXISTS app_settings (
 ---
 
 ## 4. Global Navigation Header
-Rendered persistently across the top of the app:
+Rendered persistently across the top of the app as a flat institutional bar with a `1px` neutral bottom border. Active routes use matte accent text with a clean bottom indicator, never colored borders:
 - **Left:** `<ArmLabLogo/>` (clicking returns to `/`) + contextual back button on sub-screens (e.g., `More` or `Back to Events`).
 - **Right (3 Global Controls):**
   1. **Theme Toggle Button** (`Moon` when Light, `Lightbulb` when Dark)
@@ -412,8 +415,9 @@ Rendered persistently across the top of the app:
 ### Screen 1: Home — Daily Sign-In Register (`/`)
 - Displays live local date and time (e.g., `Tuesday, 10 Nov 2026 | 09:15`).
 - Centered **Daily Sign-In Register** card:
-  - Auto-focused Student Number input field that supports both physical keyboards (submits on `Enter`, compatible with future USB scanners) and touch tapping.
+  - Auto-focused Student Number input (`aria-label="Student Number"`, `placeholder="Enter student number"`, no visible field label) that supports both physical keyboards (submits on `Enter`, compatible with USB scanners) and touch tapping.
   - Large touch-friendly on-screen numeric keypad (`1–9`, `CLR`, `0`, `DEL` backspace) + full-width **`SIGN IN NOW`** primary button below the keypad.
+  - The card contains only the input, numpad, `SIGN IN NOW` button, and the auto-clearing status banner. Do not render a redundant inner card header, a visible Student Number label, or a footer help caption.
 - **Feedback Banner & Auto-Clear (~4 seconds):**
   - **Success (Green):** `Welcome, [Full Name] -- Signed in at [HH:MM] ([Arm Member / Intern])`
   - **Duplicate Today (Amber):** `Already signed in today at [HH:MM]. Have a productive session, [Full Name].`
@@ -422,7 +426,7 @@ Rendered persistently across the top of the app:
 
 ### Screen 2: Combined Leaderboard (`/leaderboard`)
 - **Single unified leaderboard table** ranking **both Arm Members and Interns together** by sign-in count (`COUNT(sign_ins.id) DESC, full_name ASC`).
-- Period filter toggle at top-right: **`This Month`** vs. **`All Time`**.
+- Period filter toggle at top-right (in order): **`Today`**, **`This Week`**, **`This Month`**, and **`All Time`**. Boundaries are local kiosk dates: today, the current Monday-to-Sunday week, the current calendar month, or all recorded sign-ins. Hide profiles with zero sign-ins for the selected period and show a period-specific empty state.
 - Table columns:
   - **Rank:** `#1`, `#2`, `#3`... (styled cleanly, zero medal emojis).
   - **Name & Qualification:** Bold `full_name` on line 1; `course` + color-coded role pill (`Arm Member` or `Intern`) right next to the qualification on line 2.
@@ -499,6 +503,8 @@ Organized into 3 clean tabs:
    - Buttons: **`Export Selected Day CSV`** and **`Export Full Attendance Summary CSV`** (all profiles + total sign-ins).
 3. **Database Backup:**
    - Explains where the local SQLite database lives and provides a **`Download Database Backup (.db)`** button using native save dialog + file copy (plus a clean error/success banner) so an admin can back up `armlab.db` onto a USB drive.
+
+**Admin-Only Password Gate:** `/admin` is the ONLY password-protected route. On first launch, once SQLite is ready, if `admin_password_hash` is missing from `app_settings`, block the app with a **Set Admin Password** screen (new password plus confirmation, minimum 4 characters, `Eye`/`EyeOff` visibility toggles). Store a random salt in `admin_password_salt` and a salted SHA-256 hash in `admin_password_hash`; never hardcode a default password. Keep the unlock state strictly in React memory. Entering `/admin` while locked shows an Admin Password Prompt (password input, `Eye`/`EyeOff`, inline wrong-password error, Unlock, and Cancel back to `/sections`). Leaving `/admin` automatically re-locks it. Provide `Lock Admin` and `Change Admin Password` (current password, new password, confirmation) controls inside `AdminPage`. All other routes remain open without a password.
 
 ---
 
@@ -565,11 +571,11 @@ Work strictly in this order. At the end of each phase, run checks (`npx tsc --no
   **-> STOP and wait for confirmation.**
 
 - **Phase 2 — Complete TypeScript Database & Export Layer (`src/db/`):**
-  Implement `types.ts`, `client.ts`, `settings.ts`, `profiles.ts` (including transactional Arm Member + Project #1 creation, Intern validation, and last-project delete guard), `signIns.ts` (including local `YYYY-MM-DD` same-day duplicate detection and combined Leaderboard queries for `month` and `all`), `events.ts` (active/scheduled/ended transitions, guest check-in, guest edit/delete), and `exports.ts` (safe RFC-4180 CSV escaping + native save dialog + `.db` backup copy). Include clean validation errors. Write and pass Phase 2's test.
+  Implement `types.ts`, `client.ts`, `settings.ts`, `profiles.ts` (including transactional Arm Member + Project #1 creation, Intern validation, and last-project delete guard), `signIns.ts` (including local `YYYY-MM-DD` same-day duplicate detection and combined Leaderboard queries for `today`, Monday-start `week`, `month`, and `all`), `events.ts` (active/scheduled/ended transitions, guest check-in, guest edit/delete), and `exports.ts` (safe RFC-4180 CSV escaping + native save dialog + `.db` backup copy). Include clean validation errors. Write and pass Phase 2's test.
   **-> STOP and wait for confirmation.**
 
 - **Phase 3 — Home Daily Register (`/`), Combined Leaderboard (`/leaderboard`), and More Hub (`/sections`):**
-  Build `HomePage.tsx` (live clock, auto-focused input with `Enter` submit, touch-friendly `Numpad`, 4-second auto-clear status feedback for registered/duplicate/not-found), `LeaderboardPage.tsx` (single combined table with `This Month`/`All Time` filter and role pills beside courses), and `SectionsPage.tsx` (2×2 grid with live database counts). Write and pass Phase 3's test.
+  Build `HomePage.tsx` (live clock, auto-focused input with `Enter` submit, touch-friendly `Numpad`, 4-second auto-clear status feedback for registered/duplicate/not-found), `LeaderboardPage.tsx` (single combined table with Today/This Week/This Month/All Time filters and role pills beside courses), and `SectionsPage.tsx` (2×2 grid with live database counts). Write and pass Phase 3's test.
   **-> STOP and wait for confirmation.**
 
 - **Phase 4 — Arm Members (`/members`) and Interns (`/interns`) Directories:**
@@ -581,7 +587,7 @@ Work strictly in this order. At the end of each phase, run checks (`npx tsc --no
   **-> STOP and wait for confirmation.**
 
 - **Phase 6 — Admin Hub (`/admin`), Backups & Final Polish:**
-  Build `AdminPage.tsx` (3 tabs: Create & Manage Profiles with mandatory Project #1 / Organization rules, Daily Attendance Logs + CSV exports, and Database `.db` Backup export). Run Phase 6's automated audit test plus a full verification confirming zero emojis, zero `localStorage`, zero passwords/announcements, full Light/Dark parity across all 7 screens, and clean `npm run build` + `npm test` + `cargo check` (and `npm run tauri build` readiness).
+  Build `AdminPage.tsx` (3 tabs: Create & Manage Profiles with mandatory Project #1 / Organization rules, Daily Attendance Logs + CSV exports, and Database `.db` Backup export) plus the Admin-only password gate (first-run setup, salted SHA-256 in SQLite, `/admin` unlock prompt with automatic re-lock on exit, Lock Admin, and Change Admin Password). Run Phase 6's automated audit test plus a full verification confirming zero emojis, zero `localStorage`/`sessionStorage`, no non-Admin password gates, zero announcements, full Light/Dark parity across all 7 screens, and clean `npm run build` + `npm test` + `cargo check` (and `npm run tauri build` readiness).
   **-> Present final verification checklist.**
 
 ---
@@ -600,12 +606,12 @@ Alongside `npx tsc --noEmit`, `npm run build`, and `cargo check`, you MUST creat
 2. **Phase 2 Test (`src/test/phase2-db-rules.test.ts`) — Schema Rules, Duplicate Guard & CSV Escaping:**
    Verify the `src/db/` layer rejects creating an `arm_member` with zero projects, blocks deleting an Arm Member's last remaining project, rejects creating an `intern` without an `organization`, allows only one `sign_ins` record per `(profile_id, YYYY-MM-DD)` (returning the existing timestamp on a second same-day attempt), and properly RFC-4180 escapes commas, double quotes, and newlines in `exports.ts`.
 3. **Phase 3 Test (`src/test/phase3-register-leaderboard.test.tsx`) — Home Numpad, 4-Second Auto-Clear & Combined Leaderboard:**
-   Using `vi.useFakeTimers()`, render `HomePage`, enter a student number via the on-screen `Numpad` (`DEL`, `CLR`, digits), submit via `SIGN IN NOW` (and via keyboard `Enter`), verify all 3 status banner states (Green welcome, Amber duplicate, Red not found), and assert the input and banner automatically reset after 4 seconds. Also verify `LeaderboardPage` renders both `Arm Member` and `Intern` entries in a single sorted table with role pills next to qualifications and switches between `This Month` and `All Time`.
+   Using `vi.useFakeTimers()`, render `HomePage`, enter a student number via the on-screen `Numpad` (`DEL`, `CLR`, digits), submit via `SIGN IN NOW` (and via keyboard `Enter`), verify all 3 status banner states (Green welcome, Amber duplicate, Red not found), and assert the input and banner automatically reset after 4 seconds. Also verify `LeaderboardPage` renders both `Arm Member` and `Intern` entries in a single sorted table with role pills next to qualifications and switches across all four periods (Today, This Week, This Month, All Time).
 4. **Phase 4 Test (`src/test/phase4-directories.test.tsx`) — Project Guardrails & Directory Edits:**
    Render `MembersPage` with a member who has 1 project and assert the project `Delete` button is disabled (`At least 1 project required`). Add a 2nd project, assert `Delete` becomes enabled, click it, and verify `<ConfirmModal/>` appears before `deleteProject` runs. Verify search filtering and `Edit Details` / `Edit` modal submissions on both `MembersPage` and `InternsPage`.
 5. **Phase 5 Test (`src/test/phase5-events-checkin.test.tsx`) — Event Lifecycle & Vertical Top/Bottom Guest Check-In:**
    Verify `EventsPage` renders the top action bar above Active/Scheduled events and Previous (`ended`) events at the bottom, and blocks guest sign-in on ended events. Render `EventCheckInPage` for an active event, submit a guest via the top form, and assert the form clears immediately while staying on the page, the new guest prepends to row #1 of the bottom table with an initials badge, search filters rows, and removing a guest requires `<ConfirmModal/>`.
 6. **Phase 6 Test (`src/test/phase6-admin-hygiene.test.tsx`) — Admin Validation & Repo Hygiene Audit:**
-   Render `AdminPage` and verify form validation blocks an Arm Member missing Project #1 and an Intern missing Organization, while valid submissions succeed and trigger backup/CSV export handlers. In the same test file, scan `src/` source files (excluding `src/test/`) using Node `fs` to assert zero occurrences of `localStorage`, `sessionStorage`, and Unicode emoji characters.
+   Render `AdminPage` and verify form validation blocks an Arm Member missing Project #1 and an Intern missing Organization, while valid submissions succeed and trigger backup/CSV export handlers. Also cover first-run Admin password setup when `app_settings` has no hash, salted SHA-256 storage and verification, the `/admin` lock gate with wrong-password handling, automatic re-lock upon leaving `/admin`, the change-password flow, and non-Admin routes staying unlocked. In the same test file, scan `src/` source files (excluding `src/test/`) using Node `fs` to assert zero occurrences of `localStorage`, `sessionStorage`, announcements, and Unicode emoji characters (the Admin-only password gate is permitted).
 
 Begin **Phase 1 only** right now. Inspect the current working directory first so you don't overwrite anything unexpectedly, then scaffold and verify Phase 1.

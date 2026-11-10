@@ -37,14 +37,14 @@ export default function Modal({ open, title, onClose, children, footer, wide = f
     <div
       role="presentation"
       onMouseDown={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#080225]/60 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4"
     >
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
         onMouseDown={(event) => event.stopPropagation()}
-        className={`flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-xl ${
+        className={`flex max-h-[90vh] w-full flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-institutional ${
           wide ? 'max-w-3xl' : 'max-w-lg'
         }`}
       >
@@ -56,7 +56,7 @@ export default function Modal({ open, title, onClose, children, footer, wide = f
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
-            className="-mr-2 inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-muted transition hover:bg-app hover:text-ink"
+            className="-mr-2 inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-md text-muted transition hover:bg-surface-subtle hover:text-ink"
           >
             <X size={18} aria-hidden="true" />
           </button>

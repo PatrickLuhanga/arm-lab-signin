@@ -1,5 +1,7 @@
 import { HashRouter, Route, Routes } from 'react-router-dom'
+import AdminGate from './components/AdminGate'
 import Navbar from './components/Navbar'
+import { AdminAuthProvider } from './context/AdminAuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import AdminPage from './pages/AdminPage'
 import EventCheckInPage from './pages/EventCheckInPage'
@@ -24,24 +26,33 @@ function NotFoundPage() {
 export default function App() {
   return (
     <ThemeProvider>
-      <HashRouter>
-        <div className="flex min-h-screen flex-col bg-app text-ink">
-          <Navbar />
-          <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/leaderboard" element={<LeaderboardPage />} />
-              <Route path="/sections" element={<SectionsPage />} />
-              <Route path="/members" element={<MembersPage />} />
-              <Route path="/interns" element={<InternsPage />} />
-              <Route path="/events" element={<EventsPage />} />
-              <Route path="/events/:id/checkin" element={<EventCheckInPage />} />
-              <Route path="/admin" element={<AdminPage />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          </main>
-        </div>
-      </HashRouter>
+      <AdminAuthProvider>
+        <HashRouter>
+          <div className="flex min-h-screen flex-col bg-app text-ink">
+            <Navbar />
+            <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/leaderboard" element={<LeaderboardPage />} />
+                <Route path="/sections" element={<SectionsPage />} />
+                <Route path="/members" element={<MembersPage />} />
+                <Route path="/interns" element={<InternsPage />} />
+                <Route path="/events" element={<EventsPage />} />
+                <Route path="/events/:id/checkin" element={<EventCheckInPage />} />
+                <Route
+                  path="/admin"
+                  element={
+                    <AdminGate>
+                      <AdminPage />
+                    </AdminGate>
+                  }
+                />
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
+            </main>
+          </div>
+        </HashRouter>
+      </AdminAuthProvider>
     </ThemeProvider>
   )
 }

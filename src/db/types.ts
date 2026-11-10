@@ -2,7 +2,7 @@ export type Role = 'arm_member' | 'intern'
 
 export type EventStatus = 'active' | 'scheduled' | 'ended'
 
-export type LeaderboardPeriod = 'month' | 'all'
+export type LeaderboardPeriod = 'today' | 'week' | 'month' | 'all'
 
 export interface Profile {
   id: number

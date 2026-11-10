@@ -8,11 +8,34 @@ interface StatusBannerProps {
   message: string
 }
 
-const TONE_CONFIG: Record<BannerTone, { color: string; icon: LucideIcon; role: 'status' | 'alert' }> = {
-  success: { color: 'var(--success)', icon: CheckCircle2, role: 'status' },
-  warning: { color: 'var(--warning)', icon: AlertTriangle, role: 'status' },
-  error: { color: 'var(--danger)', icon: XCircle, role: 'alert' },
-  info: { color: 'var(--accent)', icon: Info, role: 'status' },
+const TONE_CONFIG: Record<
+  BannerTone,
+  { color: string; background: string; icon: LucideIcon; role: 'status' | 'alert' }
+> = {
+  success: {
+    color: 'var(--success)',
+    background: 'var(--success-fill)',
+    icon: CheckCircle2,
+    role: 'status',
+  },
+  warning: {
+    color: 'var(--warning)',
+    background: 'var(--warning-fill)',
+    icon: AlertTriangle,
+    role: 'status',
+  },
+  error: {
+    color: 'var(--danger)',
+    background: 'var(--danger-fill)',
+    icon: XCircle,
+    role: 'alert',
+  },
+  info: {
+    color: 'var(--accent)',
+    background: 'var(--surface-subtle)',
+    icon: Info,
+    role: 'status',
+  },
 }
 
 export default function StatusBanner({ tone, message }: StatusBannerProps) {
@@ -23,11 +46,10 @@ export default function StatusBanner({ tone, message }: StatusBannerProps) {
     <div
       role={config.role}
       aria-live="polite"
-      className="flex items-start gap-3 rounded-xl border px-4 py-3 text-sm font-medium"
+      className="flex items-start gap-3 rounded-md border border-border px-4 py-3 text-sm font-medium"
       style={{
         color: config.color,
-        borderColor: config.color,
-        backgroundColor: `color-mix(in srgb, ${config.color} 10%, transparent)`,
+        backgroundColor: config.background,
       }}
     >
       <Icon size={18} aria-hidden="true" className="mt-0.5 shrink-0" />
